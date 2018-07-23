@@ -1,5 +1,5 @@
-const bcrypt = require('bcryptjs');
 const { User } = require('../models/user.model');
+const argon2 = require('argon2');
 
 const create = (req, res) => {
     req.checkBody("username", "User name is required").notEmpty();
@@ -13,25 +13,19 @@ const create = (req, res) => {
     if (errors) {
         res.status(500).send(errors);
     } else {
-        bcrypt.genSalt(10, (err, salt) => {
-            bcrypt.hash(req.body.password, salt, (err, hash) => {
-                if (err) {
-                    res.send(err);
-                }
-                req.body.password = hash;
-                let newUser = new User(req.body);
-                newUser.save((err) => {
-                    if (err)
-                        if (err.name === 'MongoError' && err.code === 11000) {
-                            res.status(500).send(err.message);
-                        }
-                        else
-                            return res.status(500).send(err.errors)
+        argon2.hash(req.body.password).then(hash => {
+            req.body.password = hash;
+            let newUser = new User(req.body);
+            newUser.save((err) => {
+                if (err)
+                    if (err.name === 'MongoError' && err.code === 11000)
+                        res.status(500).send("already used");
                     else
-                        return res.send(newUser);
-                });
-            })
-        });
+                        return res.status(500).send(err);
+                else
+                    return res.send(newUser);
+            });
+        })
     }
 
 }
@@ -45,10 +39,11 @@ const login = (req, res) => {
     if (errors) {
         res.status(500).send(errors);
     } else {
-        User.findOne({ username: body.username }, (err, user) => {
+        User.findOne({ username: body.username }, async (err, user) => {
+            let msg = "Something went wrong";
             if (err) return res.status(500).send(err);
-            if (!user) return res.status(404).send('No user found.');
-            match = bcrypt.compareSync(body.password, user.password);
+            if (!user) return res.status(400).send(msg);
+            match = await argon2.verify(user.password, body.password);
             if (match)
                 res.status(200).send(
                     {
@@ -56,7 +51,7 @@ const login = (req, res) => {
                     }
                 )
             else
-                res.send({ 'ok': 401, "msg": "Incorrect Password" })
+                res.send({ 'ok': 400, "msg": msg })
         })
     }
 }
