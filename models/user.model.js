@@ -7,7 +7,9 @@ const UserSchema = new Schema({
     name: { type: String },
     username: { type: String, unique: true },
     email: { type: String, unique: true },
-    password: { type: String }
+    password: { type: String },
+    resetPasswordToken: String,
+    resetPasswordExpires: Date
 });
 
 UserSchema.methods.getJWT = function () {

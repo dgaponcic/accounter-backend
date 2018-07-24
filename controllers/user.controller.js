@@ -68,25 +68,19 @@ const reset = async (req, res) => {
         res.status(500).send(errors);
     } else {
         match = await argon2.verify(req.user.password, req.body.password);
-            if (match) {
-               argon2.hash(req.body.newPassword).then(hash => {
+        if (match) {
+            argon2.hash(req.body.newPassword).then(hash => {
                 req.user.password = hash;
                 req.user.save((err) => {
-                    if (err) 
+                    if (err)
                         return res.status(500).send(err);
-                    else 
+                    else
                         return res.send(req.user);
                 });
             })
-            } else
-                res.send({ 'ok': 400, "msg": "incorrect password" })
+        } else
+            res.send({ 'ok': 400, "msg": "incorrect password" })
     }
 }
 
 module.exports.reset = reset;
-
-const forgot = (req, res) => {
-
-}
-
-module.exports.forgot = forgot;
