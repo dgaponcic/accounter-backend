@@ -6,7 +6,7 @@ router = express.Router();
 
 router.post('/', UserController.create);
 router.post('/login', UserController.login);
-router.post('/reset', passport.authenticate('jwt', {session:false}), PasswordController.reset);
+router.post('/reset', passport.authenticate('jwt', { session: false }), PasswordController.reset);
 router.post('/forgot', PasswordController.forgot);
 router.get('/change/:token', PasswordController.check);
 router.post('/change/:token', PasswordController.change);
