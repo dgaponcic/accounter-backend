@@ -1,5 +1,6 @@
 const { User } = require('../models/user.model');
 const argon2 = require('argon2');
+const nodemailer = require('nodemailer');
 const passValidator = require('../config/password');
 const validator = require("email-validator");
 
@@ -17,6 +18,16 @@ const create = (req, res) => {
     if (errors) {
         res.status(400).send(errors);
     } else {
+        var transporter = nodemailer.createTransport({
+            host: 'localhost',
+            port: 1025
+        });
+        const mailOptions = {
+            from: 'support@accounter.com',
+            to: req.body.email,
+            subject: "User Registration",
+            html: `You registrated`
+        };
         argon2.hash(req.body.password).then(hash => {
             req.body.password = hash;
             let newUser = new User(req.body);
@@ -26,12 +37,18 @@ const create = (req, res) => {
                         res.status(400).send("already used");
                     else
                         return res.send(err);
-                else
-                    return res.send({ status: 200, msg: "success" });
+                else {
+                    transporter.sendMail(mailOptions, (err, info) => {
+                        if (err)
+                            return res.send(err);
+                        else
+                            return res.send({ status: 200, msg: "success", info });
+                    });
+                };
             });
-        })
-    }
-}
+        });
+    };
+};
 
 module.exports.create = create;
 
@@ -56,8 +73,8 @@ const login = (req, res) => {
                 );
             else
                 res.status(400).send({ msg });
-        })
-    }
-}
+        });
+    };
+};
 
 module.exports.login = login;

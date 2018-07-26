@@ -26,11 +26,11 @@ const reset = async (req, res) => {
                     else
                         return res.send({ status: 200, msg: "success" });
                 });
-            })
+            });
         } else
             res.status(400).send({ status: 400, msg: "incorrect password" });
-    }
-}
+    };
+};
 
 
 module.exports.reset = reset;
@@ -74,14 +74,14 @@ const forgot = (req, res) => {
                                 if (err)
                                     res.send(err)
                                 else
-                                    res.send(info);
+                                    return res.send({ status: 200, msg: "success", info })
                             });
-                        }
-                    })
-                })
-            })
-    }
-}
+                        };
+                    });
+                });
+            });
+    };
+};
 module.exports.forgot = forgot;
 
 
@@ -93,8 +93,8 @@ const check = (req, res) => {
             return res.status(400).send();
         else
             return res.status(200).send();
-    })
-}
+    });
+};
 
 module.exports.check = check;
 
@@ -122,8 +122,8 @@ const change = (req, res) => {
                         return res.status(200).send({ status: 200, msg: "success" });
                 });
             });
-        }
-    })
-}
+        };
+    });
+};
 
 module.exports.change = change;
