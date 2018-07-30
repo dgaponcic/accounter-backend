@@ -1,4 +1,4 @@
-const { User } = require('../models/user.model');
+const { User } = require('./user.model');
 const argon2 = require('argon2');
 var crypto = require('crypto');
 const nodemailer = require('nodemailer');
