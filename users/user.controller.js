@@ -40,27 +40,29 @@ module.exports.create = create;
 
 const login = (req, res) => {
     const body = req.body;
-    req.checkBody("username", "User name is required").notEmpty();
+    req.checkBody("input", "Username or email is required").notEmpty();
     req.checkBody("password", "Password is required").notEmpty();
     let errors = req.validationErrors()
-    if (errors) {
+    if (errors)
         res.status(400).send(errors);
-    } else {
-        User.findOne({ username: body.username }, async (err, user) => {
+
+    User.findOne({
+        $or: [
+            { email: req.body.input },
+            { username: req.body.input }
+        ]
+    })
+        .then(async (user) => {
             let msg = "Something went wrong";
-            if (err) return res.send(err);
-            if (!user) return res.status(400).send(msg);
+            if (!user) return res.status(400).send({ msg });
             match = await argon2.verify(user.password, body.password);
             if (match)
-                res.status(200).send(
-                    {
-                        "token": user.getJWT()
-                    }
-                );
-            else
-                res.status(400).send({ msg });
-        });
-    };
-};
+                return res.status(200).send({ "token": user.getJWT() });
+            return res.status(400).send({ msg });
+        })
+        .catch((err) => {
+            return res.send(err);
+        })
+}
 
 module.exports.login = login;
