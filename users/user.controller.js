@@ -3,7 +3,7 @@ const argon2 = require('argon2');
 const nodemailer = require('nodemailer');
 const passValidator = require('../config/password');
 const validator = require("email-validator");
-const emailSender = require('../services/email.service');
+const send = require('../services/email.service');
 
 const create = async (req, res) => {
     req.checkBody("username", "User name is required").notEmpty();
@@ -18,33 +18,22 @@ const create = async (req, res) => {
     let errors = req.validationErrors();
     if (errors)
         return res.status(400).send(errors);
-    // var transporter = nodemailer.createTransport({
-    //     host: 'localhost',
-    //     port: 1025
-    // });
-    // const mailOptions = {
-    //     from: 'support@accounter.com',
-    //     to: req.body.email,
-    //     subject: "User Registration",
-    //     html: `You registrated`
-    // };
-    var hash = await argon2.hash(req.body.password);
-    req.body.password = hash;
-    let newUser = new User(req.body);
-    newUser.save((err) => {
-        if (err) {
+    const body = req.body;
+    const msg = "you registrated";
+    var hash = await argon2.hash(body.password);
+    body.password = hash;
+    let newUser = new User(body);
+    newUser.save()
+        .then(() => {
+            send.transporter.sendMail(send.setOptions(body.email, msg), () => {
+                return res.status(201).send({ msg: "An email was sent" });
+            })
+        })
+        .catch((err) => {
             if (err.name === 'MongoError' && err.code === 11000)
                 return res.status(400).send({ msg: "already used" });
             return res.send(err);
-        }
-        emailSender(req.body.email);
-        // transporter.sendMail(mailOptions, (err, info) => {
-        //     if (err)
-        //         return res.send(err);
-        //     else
-        //         return res.status(201).send({ msg: "success", info });
-        // });
-    });
+        })
 };
 
 module.exports.create = create;
