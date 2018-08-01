@@ -21,15 +21,15 @@ const create = async (req, res) => {
 	const { username, email, password } = req.body;
 
 	try {
-		const user = await userService.registerUser(username, email, password);
+		await userService.registerUser(username, email, password);
 
 		return res
 			.status(201)
-			.send({ id: user.id, email: user.email, username: user.username });
+			.send({msg: "success"});
 	} catch (error) {
 		if (error.name === 'MongoError' && error.code === 11000)
 			return res.status(400).send({ msg: 'already used' });
-		return res.status(400).send({ msg: error.msg });
+		return res.status(400).send({ msg: error });
 	}
 };
 module.exports.validateUserCreationInput = validateUserCreationInput;
@@ -57,7 +57,7 @@ const login = async (req, res) => {
 				.send({ token: user.getJWT() });
 		return res.status(400).send({ msg });
 	} catch (error) {
-		return res.send(error);
+		return res.status(400).send({msg: error});
 	};
 };
 

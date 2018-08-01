@@ -1,24 +1,16 @@
 const mailService = require('./mailer.service');
 const { User } = require('../models/user.model');
 const argon2 = require('argon2');
-
-async function resetPassword(user, raw_password) {
-	const password = await argon2.hash(raw_password);
-	user.password = password;
-	return user;
-}
-
+ 
 async function createUser(username, email, raw_password) {
 	const password = await argon2.hash(raw_password);
-	const user = new User({ username, email, password });
-
+	const user = await new User({ username, email, password });
 	return user.save();
 }
 
 async function registerUser(username, email, raw_password) {
 	const user = await createUser(username, email, raw_password);
-	mailService.sendConfirmationEmail(user.email);
-	return user;
+	await mailService.sendConfirmationEmail(user.email);
 }
 
 module.exports.createUser = createUser;
@@ -38,3 +30,11 @@ async function checkPassword(userPass, inputPass) {
 
 module.exports.findUser = findUser;
 module.exports.checkPassword = checkPassword;
+
+async function resetPassword(user, raw_password) {
+	const password = await argon2.hash(raw_password);
+	user.password = password;
+	return user.save();
+}
+
+module.exports.resetPassword = resetPassword;
