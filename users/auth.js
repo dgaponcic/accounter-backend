@@ -5,15 +5,20 @@ const PasswordController = require('./password.controller');
 router = express.Router();
 
 router.post(
-  '/',
-  UserController.validateUserCreationInput,
-  UserController.create
+	'/',
+	UserController.validateUserCreationInput,
+	UserController.create
 );
-router.post('/login', UserController.login);
 router.post(
-  '/reset',
-  passport.authenticate('jwt', { session: false }),
-  PasswordController.reset
+	'/login',
+	UserController.validateLoginInput,
+	UserController.login
+);
+router.post(
+	'/reset',
+	passport.authenticate('jwt', { session: false }),
+	PasswordController.validatePasswordReset,
+	PasswordController.reset
 );
 router.post('/forgot', PasswordController.forgot);
 router.get('/change/:token', PasswordController.check);

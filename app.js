@@ -1,6 +1,5 @@
 const express = require('express');
 const chalk = require('chalk');
-// const debug = require('debug')('app');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
@@ -14,7 +13,7 @@ mongoose.Promise = Promise;
 mongoose.connect(config.database);
 const db = mongoose.connection;
 const app = express();
-const port = 8001;
+const port = 8000;
 const authRouter = require('./users/auth');
 
 app.use(cors());
