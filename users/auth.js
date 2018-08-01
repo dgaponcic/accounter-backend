@@ -9,6 +9,10 @@ router.post(
 	UserController.validateUserCreationInput,
 	UserController.create
 );
+router.get(
+	'/:token',
+	UserController.confirmRegistration
+)
 router.post(
 	'/login',
 	UserController.validateLoginInput,

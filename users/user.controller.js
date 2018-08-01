@@ -21,19 +21,33 @@ const create = async (req, res) => {
 	const { username, email, password } = req.body;
 
 	try {
-		await userService.registerUser(username, email, password);
-
+		const url = `http://${req.headers.host}/users/`;
+		await userService.registerUser(url, username, email, password);
 		return res
 			.status(201)
-			.send({msg: "success"});
+			.send({ msg: "success" });
 	} catch (error) {
 		if (error.name === 'MongoError' && error.code === 11000)
 			return res.status(400).send({ msg: 'already used' });
 		return res.status(400).send({ msg: error });
 	}
 };
+
+const confirmRegistration = async (req, res) => {
+	try {
+		const user = await userService.findByRegistrationToken;
+		if (!user) res.send({ msg: 'invalid or expired' });
+		user.isConfirmed = true;
+		console.log(user.isConfirmed)
+		res.send({ msg: "success" });
+	} catch (error) {
+		res.status(400).send({ msg: error })
+	}
+}
+
 module.exports.validateUserCreationInput = validateUserCreationInput;
 module.exports.create = create;
+module.exports.confirmRegistration = confirmRegistration;
 
 
 async function validateLoginInput(req, res, next) {
@@ -45,19 +59,22 @@ async function validateLoginInput(req, res, next) {
 }
 
 const login = async (req, res) => {
-	const {username, password } = req.body;
+	const { username, password } = req.body;
 	try {
 		const user = await userService.findUser(username);
 		const msg = "Something went wrong";
 		if (!user) return res.status(400).send({ msg });
-		const match = await userService.checkPassword(user.password, password);
-		if (match)
-			return res
-				.status(200)
-				.send({ token: user.getJWT() });
+		const check = userService.checkUser(user);
+		if (check) {
+			const match = await userService.checkPassword(user.password, password);
+			if (match)
+				return res
+					.status(200)
+					.send({ token: user.getJWT() });
+		}
 		return res.status(400).send({ msg });
 	} catch (error) {
-		return res.status(400).send({msg: error});
+		return res.status(400).send({ msg: error });
 	};
 };
 

@@ -1,9 +1,8 @@
 const mailService = require('../../common/services/email.service');
 
-async function sendConfirmationEmail(email) {
-  console.log('here')
+async function sendConfirmationEmail(url, email) {
   const subject = 'Confirmation Mail';
-  const message = 'Buna ziua';
+  const message = url;
   return mailService.sendMail(email, subject, message);
 }
 
