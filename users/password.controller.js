@@ -5,25 +5,37 @@ const nodemailer = require('nodemailer');
 const passValidator = require('../config/password');
 
 const reset = async (req, res) => {
-  req.checkBody('password', 'password is required').notEmpty();
-  req.checkBody('newPassword', 'introduce new password').notEmpty();
-  let errors = req.validationErrors();
-  if (errors) {
-    res.status(400).send(errors);
-  } else {
+
+    req.checkBody("password", "password is required").notEmpty();
+    req.checkBody("newPassword", "introduce new password").notEmpty();
+    let errors = req.validationErrors()
+    if (errors)
+        return res.status(400).send(errors);
     if (!passValidator.validate(req.body.newPassword))
-      return res.status(400).send({ status: 400, msg: 'too weak password' });
-    match = await argon2.verify(req.user.password, req.body.password);
+        return res.status(400).send({ status: 400, msg: "too weak password" });
+    const user = req.user;
+    const body = req.body;
+    try {
+        match = await argon2.verify(user.password, body.password);
+    } catch (error) {
+        return res.send(error)
+    }
     if (match) {
-      argon2.hash(req.body.newPassword).then(hash => {
-        req.user.password = hash;
-        req.user.save(err => {
-          if (err) return res.status(500).send(err);
-          else return res.send({ status: 200, msg: 'success' });
-        });
-      });
-    } else res.status(400).send({ status: 400, msg: 'incorrect password' });
-  }
+        try {
+            const hash = await argon2.hash(body.newPassword);
+            user.password = hash;      
+        } catch (error) {
+            return res.send(error)
+        }
+        user.save()
+            .then(() => {
+                return res.status(200).send({ msg: "success" });
+            })
+            .catch((err) => {
+                return res.send(err);
+            })
+    } else
+        return res.status(400).send({ msg: "incorrect password" });
 };
 
 module.exports.reset = reset;
