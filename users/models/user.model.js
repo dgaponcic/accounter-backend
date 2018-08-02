@@ -6,9 +6,9 @@ const Schema = mongoose.Schema;
 const UserSchema = new Schema({
     username: { type: String, unique: true },
     email: { type: String, unique: true },
-    password: { type: String },
-    isConfirmed: { type: Boolean },
-    active: { type: Boolean },
+    password: { type: String,  },
+    isConfirmed: { type: Boolean, default: false},
+    active: { type: Boolean, default: true},
     registrationToken: String,
     registrationExpires: Date,
     resetPasswordToken: String,

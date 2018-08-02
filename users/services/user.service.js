@@ -2,14 +2,14 @@ const mailService = require('./mailer.service');
 const { User } = require('../models/user.model');
 var crypto = require('crypto');
 const argon2 = require('argon2');
- 
+
 async function createUser(username, email, raw_password) {
 	const password = await argon2.hash(raw_password);
 	const user = await new User({ username, email, password });
 	return user.save();
 }
 
-async function registerUser(url,username, email, raw_password) {
+async function registerUser(url, username, email, raw_password) {
 	const user = await createUser(username, email, raw_password);
 	await createRegistrationToken(user);
 	url += user.registrationToken;
@@ -46,19 +46,50 @@ async function createRegistrationToken(user) {
 	const buff = await crypto.randomBytes(30);
 	user.registrationToken = buff.toString('hex');
 	user.registrationExpires = Date.now() + 3600000;
+	user.save();
 }
 
 async function findByRegistrationToken(token, expirationDate) {
 	const user = await User.findOne({ registrationToken: token });
-	return user;	
+	if (user && user.registrationExpires <= Date.now() + 3600000)
+		return user;
+	return undefined;
 }
 
 module.exports.findByRegistrationToken = findByRegistrationToken;
 
 async function checkUser(user) {
-	if(user.isConfirmed === true && user.active === true)
-		return true;
-	return false;
+	if (user.isConfirmed && user.active) {
+		return {
+			value: true,
+			msg: 'success'
+		}
+
+	}
+	if (!user.isConfirmed)
+		return {
+			value: false,
+			msg: 'user is not confirmed'
+		};
+	return {
+		value: false,
+		msg: 'user is not active'
+	}
 }
 
 module.exports.checkUser = checkUser;
+
+async function forgotPassword(url, user){
+	await createPasswordToken(user);
+	url += user.resetPasswordToken;
+	mailService.sendConfirmationEmail(url, user.email);
+}
+
+async function createPasswordToken(user){
+	const buff = await crypto.randomBytes(30);
+	user.resetPasswordToken = buff.toString('hex');
+	user.resetPasswordExpires = Date.now() + 3600000;
+	user.save();
+}
+
+module.exports.forgotPassword = forgotPassword;

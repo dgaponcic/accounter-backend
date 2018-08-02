@@ -21,7 +21,7 @@ const create = async (req, res) => {
 	const { username, email, password } = req.body;
 
 	try {
-		const url = `http://${req.headers.host}/users/`;
+		const url = `http://${req.headers.host}/users/confirmation/`;
 		await userService.registerUser(url, username, email, password);
 		return res
 			.status(201)
@@ -35,13 +35,15 @@ const create = async (req, res) => {
 
 const confirmRegistration = async (req, res) => {
 	try {
-		const user = await userService.findByRegistrationToken;
-		if (!user) res.send({ msg: 'invalid or expired' });
+		const user = await userService.findByRegistrationToken(req.params.token);
+		if (!user) return res.status(400).send({ msg: 'invalid or expired' });
+		user.registrationToken = undefined;
+		user.registrationExpires = undefined;
 		user.isConfirmed = true;
-		console.log(user.isConfirmed)
-		res.send({ msg: "success" });
+		user.save();
+		return res.send({ msg: "success" });
 	} catch (error) {
-		res.status(400).send({ msg: error })
+		return res.status(400).send({ msg: error });
 	}
 }
 
@@ -64,15 +66,14 @@ const login = async (req, res) => {
 		const user = await userService.findUser(username);
 		const msg = "Something went wrong";
 		if (!user) return res.status(400).send({ msg });
-		const check = userService.checkUser(user);
-		if (check) {
+		const check = await userService.checkUser(user);
+		if (check.value) {
 			const match = await userService.checkPassword(user.password, password);
 			if (match)
-				return res
-					.status(200)
-					.send({ token: user.getJWT() });
+				return res.status(200).send({ token: user.getJWT() });
+			return res.status(400).send(msg);
 		}
-		return res.status(400).send({ msg });
+		return res.status(400).send({ msg: check.msg });
 	} catch (error) {
 		return res.status(400).send({ msg: error });
 	};
@@ -80,3 +81,10 @@ const login = async (req, res) => {
 
 module.exports.validateLoginInput = validateLoginInput;
 module.exports.login = login;
+
+
+const resendConfirmation = (req, res) => {
+	res.send('here');
+}
+
+module.exports.resendConfirmation = resendConfirmation;

@@ -9,8 +9,9 @@ router.post(
 	UserController.validateUserCreationInput,
 	UserController.create
 );
+
 router.get(
-	'/:token',
+	'/confirmation/:token',
 	UserController.confirmRegistration
 )
 router.post(
@@ -18,13 +19,18 @@ router.post(
 	UserController.validateLoginInput,
 	UserController.login
 );
+router.get('/resend', UserController.resendConfirmation);
 router.post(
 	'/reset',
 	passport.authenticate('jwt', { session: false }),
 	PasswordController.validatePasswordReset,
 	PasswordController.reset
 );
-router.post('/forgot', PasswordController.forgot);
+router.post(
+	'/forgot',
+	PasswordController.validatePasswordForgot,
+	PasswordController.forgot
+);
 router.get('/change/:token', PasswordController.check);
 router.post('/change/:token', PasswordController.change);
 
