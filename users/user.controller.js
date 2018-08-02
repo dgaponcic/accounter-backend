@@ -83,8 +83,16 @@ module.exports.validateLoginInput = validateLoginInput;
 module.exports.login = login;
 
 
-const resendConfirmation = (req, res) => {
-	res.send('here');
+const resendConfirmation = async (req, res) => {
+	try {
+		const user = await User.findOne({ registrationToken: req.params.token })
+		if (!user) return res.status(400).send({ msg: 'invalid' });
+		const url = `http://${req.headers.host}/users/confirmation/`;
+		await userService.resendEmail(url, user);
+		return res.send({ msg: "success" });
+	} catch (error) {
+		return res.status(400).send({ msg: error });
+	}
 }
 
 module.exports.resendConfirmation = resendConfirmation;

@@ -19,7 +19,7 @@ router.post(
 	UserController.validateLoginInput,
 	UserController.login
 );
-router.get('/resend', UserController.resendConfirmation);
+router.get('/resend/:token', UserController.resendConfirmation);
 router.post(
 	'/reset',
 	passport.authenticate('jwt', { session: false }),

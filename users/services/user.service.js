@@ -64,7 +64,6 @@ async function checkUser(user) {
 			value: true,
 			msg: 'success'
 		}
-
 	}
 	if (!user.isConfirmed)
 		return {
@@ -93,3 +92,11 @@ async function createPasswordToken(user){
 }
 
 module.exports.forgotPassword = forgotPassword;
+
+async function resendEmail(url, user) {
+	await createRegistrationToken(user);
+	url += user.registrationToken;
+	mailService.sendConfirmationEmail(url, user.email);
+}
+
+module.exports.resendEmail = resendEmail;
