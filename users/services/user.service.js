@@ -35,9 +35,7 @@ module.exports.findUser = findUser;
 module.exports.checkPassword = checkPassword;
 
 async function resetPassword(user, raw_password) {
-	console.log(raw_password)
 	const password = await argon2.hash(raw_password);
-	console.log('here')
 	user.password = password;
 	return user.save();
 }
@@ -61,7 +59,7 @@ async function findByRegistrationToken(token, expirationDate) {
 module.exports.findByRegistrationToken = findByRegistrationToken;
 
 async function checkUser(user) {
-	if (user.isConfirmed && user.active) {
+	if (user.isConfirmed && user.isActive) {
 		return {
 			value: true,
 			msg: 'success'
@@ -70,11 +68,11 @@ async function checkUser(user) {
 	if (!user.isConfirmed)
 		return {
 			value: false,
-			msg: 'user is not confirmed'
+			msg: 'User is not confirmed.'
 		};
 	return {
 		value: false,
-		msg: 'user is not active'
+		msg: 'User is not active.'
 	}
 }
 

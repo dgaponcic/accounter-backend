@@ -8,7 +8,7 @@ const UserSchema = new Schema({
     email: { type: String, unique: true },
     password: { type: String,  },
     isConfirmed: { type: Boolean, default: false},
-    active: { type: Boolean, default: true},
+    isActive: { type: Boolean, default: true},
     registrationToken: String,
     registrationExpires: Date,
     resetPasswordToken: String,

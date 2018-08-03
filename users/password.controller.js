@@ -6,13 +6,13 @@ const passValidator = require('../config/password');
 const userService = require('./services/user.service');
 
 async function validatePasswordReset(req, res, next) {
-	req.checkBody("password", "password is required").notEmpty();
-	req.checkBody("newPassword", "introduce new password").notEmpty();
+	req.checkBody("password", "Password is required.").notEmpty();
+	req.checkBody("newPassword", "Introduce new password.").notEmpty();
 	const errors = req.validationErrors()
 	if (errors)
 		return res.status(400).send(errors);
 	if (!passValidator.validate(req.body.newPassword))
-		return res.status(400).send({ status: 400, msg: "too weak password" });
+		return res.status(400).send({ status: 400, msg: "Too weak password." });
 	next();
 }
 
@@ -25,7 +25,7 @@ async function reset(req, res) {
 			await userService.resetPassword(user, newPassword);
 			return res.send({ msg: "success" });
 		}
-		return res.status(400).send({ msg: "incorrect password" });
+		return res.status(400).send({ msg: "Incorrect password." });
 	} catch (error) {
 		return res.status(400).send({ msg: error });
 	}
@@ -35,7 +35,7 @@ module.exports.validatePasswordReset = validatePasswordReset;
 module.exports.reset = reset;
 
 function validatePasswordForgot(req, res, next) {
-	req.checkBody('username', 'Email or username is required').notEmpty();
+	req.checkBody('username', 'Email or username is required.').notEmpty();
 	const errors = req.validationErrors();
 	if (errors)
 		return res.status(400).send(errors);
@@ -47,8 +47,8 @@ async function forgot(req, res) {
 		username = req.body.username;
 		user = await userService.findUser(username);
 		if (!user)
-			return res.status(400).send({ status: 400, msg: 'no user exists' });
-		const url = `http://${req.headers.host}/users/change/`;
+			return res.status(400).send({ status: 400, msg: 'No user exists.' });
+		const url = `http://192.168.84.220:8082/#/newpas`;
 		await userService.forgotPassword(url, user)
 		return res.send({ msg: 'success' })
 	} catch (error) {
@@ -64,7 +64,7 @@ async function check(req, res) {
 		user = await userService.checkPasswordToken(req.params.token);
 		if (user)
 			return res.send({ msg: 'success' });
-		return res.status(400).send({ msg: 'invalid or expired' });
+		return res.status(400).send({ msg: 'Invalid or expired.' });
 	} catch (error) {
 		return res.status(400).send(error);
 	}
@@ -73,12 +73,12 @@ async function check(req, res) {
 module.exports.check = check;
 
 function validateResetPassword(req, res, next) {
-	req.checkBody('newPassword', 'password is required').notEmpty();
+	req.checkBody('newPassword', 'Password is required.').notEmpty();
 	const errors = req.validationErrors();
 	if (errors)
 		return res.status(400).send(errors);
 	if (!passValidator.validate(req.body.newPassword))
-		return res.status(400).send({ status: 400, msg: 'too weak password' });
+		return res.status(400).send({ status: 400, msg: 'Too weak password.' });
 	next();
 }
 
@@ -86,7 +86,7 @@ async function change(req, res) {
 	try {
 		const user = await userService.checkPasswordToken(req.params.token);
 		if (!user)
-			return res.status(400).send({ msg: 'invalid or expired' });
+			return res.status(400).send({ msg: 'Invalid or expired.' });
 		await userService.resetPassword(user, req.body.newPassword);
 		user.resetPasswordToken = undefined;
 		user.resetPasswordExpires = undefined;
