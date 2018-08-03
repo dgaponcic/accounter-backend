@@ -17,7 +17,7 @@ async function validateUserCreationInput(req, res, next) {
 	next();
 }
 
-const create = async (req, res) => {
+async function create(req, res) {
 	const { username, email, password } = req.body;
 
 	try {
@@ -33,7 +33,7 @@ const create = async (req, res) => {
 	}
 };
 
-const confirmRegistration = async (req, res) => {
+async function confirmRegistration(req, res) {
 	try {
 		const user = await userService.findByRegistrationToken(req.params.token);
 		if (!user) return res.status(400).send({ msg: 'invalid or expired' });
@@ -60,7 +60,7 @@ async function validateLoginInput(req, res, next) {
 	next();
 }
 
-const login = async (req, res) => {
+async function login(req, res) {
 	const { username, password } = req.body;
 	try {
 		const user = await userService.findUser(username);
@@ -83,7 +83,7 @@ module.exports.validateLoginInput = validateLoginInput;
 module.exports.login = login;
 
 
-const resendConfirmation = async (req, res) => {
+async function resendConfirmation(req, res) {
 	try {
 		const user = await User.findOne({ registrationToken: req.params.token })
 		if (!user) return res.status(400).send({ msg: 'invalid' });

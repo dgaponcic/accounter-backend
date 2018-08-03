@@ -19,7 +19,10 @@ router.post(
 	UserController.validateLoginInput,
 	UserController.login
 );
-router.get('/resend/:token', UserController.resendConfirmation);
+router.get(
+	'/resend/:token',
+	UserController.resendConfirmation
+);
 router.post(
 	'/reset',
 	passport.authenticate('jwt', { session: false }),
@@ -31,7 +34,14 @@ router.post(
 	PasswordController.validatePasswordForgot,
 	PasswordController.forgot
 );
-router.get('/change/:token', PasswordController.check);
-router.post('/change/:token', PasswordController.change);
+router.get(
+	'/change/:token',
+	PasswordController.check
+);
+router.post(
+	'/change/:token',
+	PasswordController.validateResetPassword,
+	PasswordController.change
+);
 
 module.exports = router;

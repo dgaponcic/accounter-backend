@@ -35,7 +35,9 @@ module.exports.findUser = findUser;
 module.exports.checkPassword = checkPassword;
 
 async function resetPassword(user, raw_password) {
+	console.log(raw_password)
 	const password = await argon2.hash(raw_password);
+	console.log('here')
 	user.password = password;
 	return user.save();
 }
@@ -78,13 +80,13 @@ async function checkUser(user) {
 
 module.exports.checkUser = checkUser;
 
-async function forgotPassword(url, user){
+async function forgotPassword(url, user) {
 	await createPasswordToken(user);
 	url += user.resetPasswordToken;
 	mailService.sendConfirmationEmail(url, user.email);
 }
 
-async function createPasswordToken(user){
+async function createPasswordToken(user) {
 	const buff = await crypto.randomBytes(30);
 	user.resetPasswordToken = buff.toString('hex');
 	user.resetPasswordExpires = Date.now() + 3600000;
@@ -100,3 +102,12 @@ async function resendEmail(url, user) {
 }
 
 module.exports.resendEmail = resendEmail;
+
+async function checkPasswordToken(resetPasswordToken) {
+	const user = await User.findOne({ resetPasswordToken })
+	if (user && user.resetPasswordExpires <= Date.now() + 3600000)
+		return user;
+	return undefined;
+}
+
+module.exports.checkPasswordToken = checkPasswordToken;

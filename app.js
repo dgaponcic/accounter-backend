@@ -8,36 +8,20 @@ const expressValidator = require('express-validator');
 const passport = require('passport');
 const cors = require('cors');
 const Promise = require('bluebird');
+const validator = require('./config/validator');
+const authRouter = require('./users/auth.routes');
 
+const app = express();
 mongoose.Promise = Promise;
 mongoose.connect(config.database);
 const db = mongoose.connection;
-const app = express();
 const port = 8000;
-const authRouter = require('./users/auth');
 
 app.use(cors());
 app.use(morgan('tiny'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(
-  expressValidator({
-    errorFormatter: (param, msg, value) => {
-      var namespace = param.split('.'),
-        root = namespace.shift(),
-        formParam = root;
-
-      while (namespace.length) {
-        formParam += '[' + namespace.shift() + ']';
-      }
-      return {
-        param: formParam,
-        msg: msg,
-        value: value
-      };
-    }
-  })
-);
+app.use(validator);
 
 require('./config/passport')(passport);
 
