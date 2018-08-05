@@ -1,17 +1,17 @@
 const nodemailer = require('nodemailer');
 
-// var transporter = nodemailer.createTransport({
-//   host: 'localhost',
-//   port: 1025
-// });
-
 var transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-         user: 'gaponea.d@gmail.com',
-         pass: 'eunaminstagram'
-     }
- });
+  host: 'localhost',
+  port: 1025
+});
+
+// var transporter = nodemailer.createTransport({
+//   service: 'gmail',
+//   auth: {
+//          user: 'gaponea.d@gmail.com',
+//          pass: 'eunaminstagram'
+//      }
+//  });
 
 async function sendMail(email, subject, msg) {
   return transporter.sendMail({
