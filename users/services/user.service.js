@@ -51,7 +51,7 @@ async function createRegistrationToken(user) {
 
 async function findByRegistrationToken(token, expirationDate) {
 	const user = await User.findOne({ registrationToken: token });
-	if (user && user.registrationExpires <= Date.now() + 3600000)
+	if (user && Date.now() <= user.registrationExpires)
 		return user;
 	return undefined;
 }
@@ -103,7 +103,7 @@ module.exports.resendEmail = resendEmail;
 
 async function checkPasswordToken(resetPasswordToken) {
 	const user = await User.findOne({ resetPasswordToken })
-	if (user && user.resetPasswordExpires <= Date.now() + 3600000)
+	if (user && Date.now() <= user.resetPasswordExpires)
 		return user;
 	return undefined;
 }

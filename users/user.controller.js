@@ -23,7 +23,7 @@ async function create(req, res) {
 	const { username, email, password } = req.body;
 
 	try {
-		const url = `http://${req.headers.host}/users/confirmation/`;
+		const url = `http://192.168.84.220:8080/#/confirmation/`;
 		await userService.registerUser(url, username, email, password);
 		return res
 			.status(201)
@@ -88,8 +88,8 @@ module.exports.login = login;
 async function resendConfirmation(req, res) {
 	try {
 		const user = await User.findOne({ registrationToken: req.params.token })
-		if (!user) return res.status(400).send({ msg: 'Invalid' });
-		const url = `http://${req.headers.host}/users/confirmation/`;
+		if (!user) return res.status(404).send({ msg: 'Not found.' });
+		const url = `http://192.168.84.220:8080/#/confirmation/`;
 		await userService.resendEmail(url, user);
 		return res.send({ msg: "success" });
 	} catch (error) {

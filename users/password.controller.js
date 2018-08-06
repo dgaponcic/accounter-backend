@@ -16,7 +16,7 @@ async function validatePasswordReset(req, res, next) {
 	next();
 }
 
-async function reset(req, res) {
+async function resetPass(req, res) {
 	const user = req.user;
 	const { password, newPassword } = req.body;
 	try {
@@ -32,7 +32,7 @@ async function reset(req, res) {
 };
 
 module.exports.validatePasswordReset = validatePasswordReset;
-module.exports.reset = reset;
+module.exports.resetPass = resetPass;
 
 function validatePasswordForgot(req, res, next) {
 	req.checkBody('username', 'Email or username is required.').notEmpty();
@@ -42,13 +42,13 @@ function validatePasswordForgot(req, res, next) {
 	next();
 }
 
-async function forgot(req, res) {
+async function forgotPass(req, res) {
 	try {
 		username = req.body.username;
 		user = await userService.findUser(username);
 		if (!user)
 			return res.status(400).send({ status: 400, msg: 'No user exists.' });
-		const url = `http://192.168.84.220:8082/#/newpas`;
+		const url = `http://192.168.84.220:8080/#/forgot/confirmation/`;
 		await userService.forgotPassword(url, user)
 		return res.send({ msg: 'success' })
 	} catch (error) {
@@ -57,9 +57,9 @@ async function forgot(req, res) {
 }
 
 module.exports.validatePasswordForgot = validatePasswordForgot;
-module.exports.forgot = forgot;
+module.exports.forgotPass = forgotPass;
 
-async function check(req, res) {
+async function checkPassToken(req, res) {
 	try {
 		user = await userService.checkPasswordToken(req.params.token);
 		if (user)
@@ -70,7 +70,7 @@ async function check(req, res) {
 	}
 };
 
-module.exports.check = check;
+module.exports.checkPassToken = checkPassToken;
 
 function validateResetPassword(req, res, next) {
 	req.checkBody('newPassword', 'Password is required.').notEmpty();
@@ -82,7 +82,7 @@ function validateResetPassword(req, res, next) {
 	next();
 }
 
-async function change(req, res) {
+async function changePassword(req, res) {
 	try {
 		const user = await userService.checkPasswordToken(req.params.token);
 		if (!user)
@@ -98,4 +98,4 @@ async function change(req, res) {
 };
 
 module.exports.validateResetPassword = validateResetPassword;
-module.exports.change = change;
+module.exports.changePassword = changePassword;

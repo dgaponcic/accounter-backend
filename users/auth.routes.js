@@ -27,21 +27,21 @@ router.post(
 	'/reset',
 	passport.authenticate('jwt', { session: false }),
 	PasswordController.validatePasswordReset,
-	PasswordController.reset
+	PasswordController.resetPass
 );
 router.post(
 	'/forgot',
 	PasswordController.validatePasswordForgot,
-	PasswordController.forgot
+	PasswordController.forgotPass
 );
 router.get(
 	'/change/:token',
-	PasswordController.check
+	PasswordController.checkPassToken
 );
 router.post(
 	'/change/:token',
 	PasswordController.validateResetPassword,
-	PasswordController.change
+	PasswordController.changePassword
 );
 
 module.exports = router;
