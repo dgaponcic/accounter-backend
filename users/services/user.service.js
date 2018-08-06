@@ -49,11 +49,11 @@ async function createRegistrationToken(user) {
 	user.save();
 }
 
-async function findByRegistrationToken(token, expirationDate) {
-	const user = await User.findOne({ registrationToken: token });
-	if (user && Date.now() <= user.registrationExpires)
-		return user;
-	return undefined;
+async function findByRegistrationToken(token) {
+	return await User.findOne({ 
+		registrationToken: token,
+		registrationExpires: { $gt: Date.now() }
+	})
 }
 
 module.exports.findByRegistrationToken = findByRegistrationToken;
@@ -102,10 +102,10 @@ async function resendEmail(url, user) {
 module.exports.resendEmail = resendEmail;
 
 async function checkPasswordToken(resetPasswordToken) {
-	const user = await User.findOne({ resetPasswordToken })
-	if (user && Date.now() <= user.resetPasswordExpires)
-		return user;
-	return undefined;
+	return await User.findOne({ 
+		resetPasswordToken,
+		resetPasswordExpires: { $gt: Date.now() }
+	})
 }
 
 module.exports.checkPasswordToken = checkPasswordToken;
