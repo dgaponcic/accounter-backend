@@ -11,4 +11,17 @@ route.post(
     EventController.createEvent
 )
 
+route.post(
+    '/:id/add/spending',
+    passport.authenticate('jwt', { session: false }),
+    SpendingController.validateSpendingInput,
+    SpendingController.createSpending
+)
+
+// route.get(
+//     '/:id',
+//     passport.authenticate('jwt', { session: false }),
+//     EventController.listOneEvent
+// )
+
 module.exports = route;

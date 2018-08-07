@@ -4,8 +4,9 @@ const Schema = mongoose.Schema;
 
 const SpendingSchema = new Schema({
     name: String,
-    creationDate: Date(),
-    participants: { type: mongoose.Schema.ObjectId, ref: 'User' },
+    creationDate: Date,
+    author: { type: mongoose.Schema.ObjectId, ref: 'User' },
+    participants: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
     price: Number
 });
 

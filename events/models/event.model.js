@@ -5,6 +5,7 @@ const Schema = mongoose.Schema;
 const EventSchema = new Schema({
     name: String,
     creationDate: Date,
+    author: { type: mongoose.Schema.ObjectId, ref: 'User' },
     participants: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
     spendings: [{ type: mongoose.Schema.ObjectId, ref: 'Spending' }]
 });
