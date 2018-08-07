@@ -50,7 +50,7 @@ async function createRegistrationToken(user) {
 }
 
 async function findByRegistrationToken(token) {
-	return await User.findOne({ 
+	return await User.findOne({
 		registrationToken: token,
 		registrationExpires: { $gt: Date.now() }
 	})

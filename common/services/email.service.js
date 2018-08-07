@@ -8,8 +8,8 @@ var transporter = nodemailer.createTransport({
 // var transporter = nodemailer.createTransport({
 //   service: 'gmail',
 //   auth: {
-//          user: 'gaponea.d@gmail.com',
-//          pass: 'eunaminstagram'
+//          user:
+//          pass:
 //      }
 //  });
 

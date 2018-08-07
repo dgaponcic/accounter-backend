@@ -10,6 +10,7 @@ const cors = require('cors');
 const Promise = require('bluebird');
 const validator = require('./config/validator');
 const authRouter = require('./users/auth.routes');
+const eventRouter = require('./events/routes/events.routes');
 
 const app = express();
 mongoose.Promise = Promise;
@@ -29,6 +30,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/users', authRouter);
+app.use('/events', eventRouter);
 
 app.listen(port, () => {
   console.log(`listening on ${chalk.green(port)}`);
