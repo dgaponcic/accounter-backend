@@ -1,8 +1,6 @@
 const eventService = require('../services/event.service');
 const { Event } = require('../models/event.model');
 const { Spending } = require('../models/spending.model');
-// const baseJoi = require('joi');
-// const Joi = require('joi-add')(baseJoi)
 
 async function validateSpendingInput(req, res, next) {
     req.checkBody("name", "Name is required.").notEmpty();

@@ -14,7 +14,7 @@ async function addNewSpending(event, name, price, author) {
     const spending = new Spending({ name, price, author })
     event.spendings.push(spending);
     spending.participants.push(author);
-    await (event.save(), spending.save());
+    await Promise.all([event.save(), spending.save()]);
     return spending;
 }
 

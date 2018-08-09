@@ -1,7 +1,7 @@
-const { User } = require('./models/user.model');
-const passValidator = require('../config/password');
+const { User } = require('../models/user.model');
+const passValidator = require('../../../config/password');
 const validator = require('email-validator');
-const userService = require('./services/user.service');
+const userService = require('../services/user.service');
 
 async function validateUserCreationInput(req, res, next) {
 	req.checkBody('username', 'User name is required.').notEmpty();

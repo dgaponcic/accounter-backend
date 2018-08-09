@@ -9,8 +9,8 @@ const passport = require('passport');
 const cors = require('cors');
 const Promise = require('bluebird');
 const validator = require('./config/validator');
-const authRouter = require('./users/auth.routes');
-const eventRouter = require('./events/routes/events.routes');
+const authRouter = require('./apps/users/routes/auth.routes');
+const eventRouter = require('./apps/events/routes/events.routes');
 
 const app = express();
 mongoose.Promise = Promise;

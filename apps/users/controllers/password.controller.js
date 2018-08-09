@@ -1,9 +1,9 @@
-const { User } = require('./models/user.model');
+const { User } = require('../models/user.model');
 const argon2 = require('argon2');
 var crypto = require('crypto');
 const nodemailer = require('nodemailer');
-const passValidator = require('../config/password');
-const userService = require('./services/user.service');
+const passValidator = require('../../../config/password');
+const userService = require('../services/user.service');
 
 async function validatePasswordReset(req, res, next) {
 	req.checkBody("password", "Password is required.").notEmpty();
