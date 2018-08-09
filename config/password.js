@@ -1,11 +1,16 @@
-var passwordValidator = require('password-validator');
+const PasswordValidator = require('password-validator');
 
-var schema = new passwordValidator();
- 
+const schema = new PasswordValidator();
+
 schema
-.is().min(6)
-.is().max(20)
-.has().lowercase()
-.has().not().spaces()
- 
+  .is()
+  .min(6)
+  .is()
+  .max(20)
+  .has()
+  .lowercase()
+  .has()
+  .not()
+  .spaces();
+
 module.exports = schema;

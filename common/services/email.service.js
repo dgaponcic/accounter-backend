@@ -1,16 +1,16 @@
 const nodemailer = require('nodemailer');
 
-var transporter = nodemailer.createTransport({
+const transporter = nodemailer.createTransport({
   host: 'localhost',
-  port: 1025
+  port: 1025,
 });
 
 async function sendMail(email, subject, msg) {
   return transporter.sendMail({
     from: 'support@accounter.com',
     to: email,
-    subject: subject,
-    html: msg
+    subject,
+    html: msg,
   });
 }
 

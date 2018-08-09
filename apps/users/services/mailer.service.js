@@ -10,6 +10,6 @@ module.exports.sendConfirmationEmail = sendConfirmationEmail;
 
 async function forgotPasswordEmail(url, email) {
   const subject = 'Forgot Password';
-  const message = `Follow this <a href=${url}>link</a>`
+  const message = `Follow this <a href=${url}>link</a>`;
   return mailService.sendMail(email, subject, message);
 }

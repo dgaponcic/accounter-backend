@@ -1,5 +1,10 @@
 module.exports = {
-  "parserOptions": {
-      "ecmaVersion": 6
-  }
+    "extends": "airbnb-base",
+    "rules": {
+        "consistent-return": 0,
+        "no-param-reassign": 0,
+        "no-underscore-dangle": 0,
+        "radix": 0,
+        "func-names": 0
+    }
 };

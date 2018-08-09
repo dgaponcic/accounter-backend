@@ -25,6 +25,7 @@
     "express": "^4.16.3",
     "express-session": "^1.15.6",
     "express-validator": "^5.2.0",
+    "jsonwebtoken": "^8.3.0",
     "mongoose": "^5.2.4",
     "mongoose-beautiful-unique-validation": "^7.1.1",
     "mongoose-unique-validator": "^2.0.1",
@@ -48,14 +49,8 @@
     }
   },
   "devDependencies": {
-    "babel-preset-env": "^1.7.0",
-    "babel-register": "^6.26.0",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^13.0.0",
-    "eslint-plugin-compat": "^2.5.1",
-    "eslint-plugin-import": "^2.13.0",
-    "eslint-plugin-jsx-a11y": "^6.1.1",
-    "eslint-plugin-prettier": "^2.6.2",
-    "prettier": "1.14.2"
+    "eslint-plugin-import": "^2.13.0"
   }
 }
