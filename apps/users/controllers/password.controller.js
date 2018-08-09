@@ -37,7 +37,7 @@ function validatePasswordForgot(req, res, next) {
 
 async function forgotPass(req, res) {
   try {
-    const { username } = req.body.username;
+    const { username } = req.body;
     const user = await userService.findUser(username);
     if (!user) return res.status(400).send({ status: 400, msg: 'No user exists.' });
     const url = 'http://192.168.84.220:8080/#/forgot/confirmation/';

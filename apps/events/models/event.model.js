@@ -1,8 +1,10 @@
 const mongoose = require('mongoose');
 
-const EventSchema = new mongoose.Schema({
+const { Schema } = mongoose;
+
+const EventSchema = new Schema({
   name: String,
-  createdAt: { type: Date, default: Date.now },
+  creationDate: Date,
   startAt: Date,
   finishAt: Date,
   author: { type: mongoose.Schema.ObjectId, ref: 'User' },
