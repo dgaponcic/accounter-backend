@@ -1,10 +1,8 @@
 const mongoose = require('mongoose');
 
-const { Schema } = mongoose.Schema;
-
-const SpendingSchema = new Schema({
+const SpendingSchema = new mongoose.Schema({
   name: String,
-  creationDate: Date,
+  createdAt: { type: Date, default: Date.now },
   author: { type: mongoose.Schema.ObjectId, ref: 'User' },
   participants: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
   price: Number,

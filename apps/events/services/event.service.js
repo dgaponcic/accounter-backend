@@ -6,7 +6,6 @@ async function createNewEvent(name, startAt, finishAt, author) {
     name, startAt, finishAt, author,
   });
   event.participants.push(author);
-  event.creationDate = Date.now();
   return event.save();
 }
 

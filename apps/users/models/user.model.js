@@ -1,9 +1,7 @@
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 
-const { Schema } = mongoose.Schema;
-
-const UserSchema = new Schema({
+const UserSchema = new mongoose.Schema({
   username: { type: String, unique: true },
   email: { type: String, unique: true },
   password: { type: String },
@@ -15,7 +13,7 @@ const UserSchema = new Schema({
   resetPasswordExpires: Date,
 });
 
-UserSchema.methods.getJWT = function getByToken() {
+UserSchema.methods.getJWT = function () {
   const expirationTime = parseInt(100000);
   return `Bearer ${jwt.sign({ user_id: this._id }, 'secret_key', { expiresIn: expirationTime })}`;
 };
