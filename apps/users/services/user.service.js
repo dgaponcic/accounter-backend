@@ -1,3 +1,5 @@
+// import { checkPassToken } from '../controllers/password.controller';
+
 const mailService = require('./mailer.service');
 const { User } = require('../models/user.model');
 var crypto = require('crypto');
@@ -109,3 +111,4 @@ async function checkPasswordToken(resetPasswordToken) {
 }
 
 module.exports.checkPasswordToken = checkPasswordToken;
+
