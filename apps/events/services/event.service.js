@@ -1,8 +1,8 @@
 const { Event } = require('../models/event.model');
 const { Spending } = require('../models/spending.model')
 
-async function createNewEvent(name, author) {
-    const event = new Event({ name, author });
+async function createNewEvent(name, startAt, finishAt, author) {
+    const event = new Event({ name, startAt, finishAt, author });
     event.participants.push(author);
     event.creationDate = Date.now();
     return event.save();

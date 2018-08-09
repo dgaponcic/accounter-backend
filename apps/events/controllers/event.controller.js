@@ -10,9 +10,9 @@ function validateEventCreation(req, res, next) {
 }
 
 async function createEvent(req, res) {
-    const eventName = req.body.name;
+    const { name, startDate, finishDate } = req.body;
     try {
-        const event = await eventService.createNewEvent(eventName, req.user);
+        const event = await eventService.createNewEvent(name, startDate, finishDate ,req.user);
         res.send({msg: 'success'});
     } catch (error) {
         return res.status(400).send({ msg: error });
