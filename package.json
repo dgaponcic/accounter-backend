@@ -35,7 +35,8 @@
     "passport": "^0.4.0",
     "passport-jwt": "^3.0.0",
     "password-strength": "0.0.1",
-    "password-validator": "^4.1.1"
+    "password-validator": "^4.1.1",
+    "pug": "^2.0.3"
   },
   "nodemonConfig": {
     "restartable": "rs",
