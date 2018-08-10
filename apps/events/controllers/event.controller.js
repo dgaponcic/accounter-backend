@@ -9,9 +9,25 @@ function validateEventCreation(req, res, next) {
 
 async function createEvent(req, res) {
   const { name, startDate, finishDate } = req.body;
+  const { user } = req;
   try {
-    await eventService.createNewEvent(name, startDate, finishDate, req.user);
-    return res.send({ msg: 'success' });
+    const eventToken = await eventService.createNewEvent(name, startDate, finishDate, user);
+    return res.status(201).send({ msg: 'success', eventToken });
+  } catch (error) {
+    return res.status(400).send({ msg: error });
+  }
+}
+
+async function joinEvent(req, res) {
+  const { user } = req;
+  const { token } = req.params;
+  try {
+    const event = await eventService.findEventByToken(token);
+    if (event) {
+      await eventService.addPeople(event, user);
+      return res.send({ msg: 'succes' });
+    }
+    return res.status(404).send({ msg: 'No event Found' });
   } catch (error) {
     return res.status(400).send({ msg: error });
   }
@@ -19,3 +35,4 @@ async function createEvent(req, res) {
 
 module.exports.validateEventCreation = validateEventCreation;
 module.exports.createEvent = createEvent;
+module.exports.joinEvent = joinEvent;

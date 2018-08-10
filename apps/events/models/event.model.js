@@ -10,6 +10,8 @@ const EventSchema = Schema({
   author: { type: mongoose.Schema.ObjectId, ref: 'User' },
   participants: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
   spendings: [{ type: mongoose.Schema.ObjectId, ref: 'Spending' }],
+  invitationToken: String,
+  invitationExpires: Date,
 });
 
 module.exports.Event = mongoose.model('Event', EventSchema);

@@ -12,6 +12,12 @@ route.post(
   EventController.createEvent,
 );
 
+route.get(
+  '/join/:token',
+  passport.authenticate('jwt', { session: false }),
+  EventController.joinEvent,
+);
+
 route.post(
   '/:id/add/spending',
   passport.authenticate('jwt', { session: false }),

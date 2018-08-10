@@ -2,7 +2,7 @@ const pug = require('pug');
 const mailService = require('../../../common/services/email.service');
 
 const generateHTML = (filename, url) => {
-  const html = pug.renderFile(`${__dirname}/../views/${filename}.pug`, {
+  const html = pug.renderFile(`${__dirname}/../views/emails/${filename}.pug`, {
     resetURL: url,
   });
   return html;
