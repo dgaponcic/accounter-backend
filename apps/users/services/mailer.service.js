@@ -13,3 +13,5 @@ async function forgotPasswordEmail(url, email) {
   const message = `Follow this <a href=${url}>link</a>`;
   return mailService.sendMail(email, subject, message);
 }
+
+module.exports.forgotPasswordEmail = forgotPasswordEmail;

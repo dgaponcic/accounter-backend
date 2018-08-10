@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 
-const SpendingSchema = new mongoose.Schema({
+const { Schema } = mongoose;
+
+const SpendingSchema = Schema({
   name: String,
   createdAt: { type: Date, default: Date.now },
   author: { type: mongoose.Schema.ObjectId, ref: 'User' },

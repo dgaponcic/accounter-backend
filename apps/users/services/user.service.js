@@ -41,8 +41,8 @@ async function checkPassword(userPass, inputPass) {
 module.exports.findUser = findUser;
 module.exports.checkPassword = checkPassword;
 
-async function resetPassword(user, raw_password) {
-  const password = await argon2.hash(raw_password);
+async function resetPassword(user, rawPassword) {
+  const password = await argon2.hash(rawPassword);
   user.password = password;
   return user.save();
 }
@@ -90,7 +90,7 @@ async function createPasswordToken(user) {
 async function forgotPassword(url, user) {
   await createPasswordToken(user);
   url += user.resetPasswordToken;
-  mailService.sendConfirmationEmail(url, user.email);
+  mailService.forgotPasswordEmail(url, user.email);
 }
 
 module.exports.forgotPassword = forgotPassword;
