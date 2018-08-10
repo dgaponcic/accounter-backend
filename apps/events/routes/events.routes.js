@@ -21,8 +21,16 @@ route.get(
 route.post(
   '/:id/add/spending',
   passport.authenticate('jwt', { session: false }),
+  SpendingController.validateUser,
   SpendingController.validateSpendingInput,
   SpendingController.createSpending,
+);
+
+route.get(
+  '/:id/delete/participant',
+  passport.authenticate('jwt', { session: false }),
+  EventController.validateUser,
+  EventController.deleteParticipant,
 );
 
 module.exports = route;

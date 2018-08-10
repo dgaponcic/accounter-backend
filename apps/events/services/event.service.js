@@ -25,7 +25,10 @@ async function findEventByToken(invitationToken) {
 }
 
 async function addPeople(event, user) {
-  event.participants.push(user);
+  const isParticipant = await Array.from(event.participants.includes(user._id));
+  if (!isParticipant) {
+    event.participants.push(user);
+  }
   await event.save();
 }
 
@@ -36,7 +39,7 @@ module.exports.addPeople = addPeople;
 async function addNewSpending(event, name, price, author) {
   const spending = new Spending({ name, price, author });
   event.spendings.push(spending);
-  spending.participants.push(author);
+  spending.addParticipants(event);
   await Promise.all([event.save(), spending.save()]);
   return spending;
 }

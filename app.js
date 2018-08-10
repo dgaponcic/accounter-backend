@@ -12,7 +12,7 @@ const eventRouter = require('./apps/events/routes/events.routes');
 
 const app = express();
 mongoose.Promise = Promise;
-mongoose.connect(config.database);
+mongoose.connect(config.database, { useNewUrlParser: true });
 const port = 8000;
 
 app.use(cors());
