@@ -5,6 +5,18 @@ const SpendingController = require('../controllers/spending.controller');
 
 const route = express.Router();
 
+route.get(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  EventController.allEvents,
+);
+
+route.get(
+  '/:id',
+  passport.authenticate('jwt', { session: false }),
+  EventController.sendEvent,
+);
+
 route.post(
   '/creation',
   passport.authenticate('jwt', { session: false }),

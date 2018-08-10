@@ -10,17 +10,24 @@ async function createEventToken(event, finishAt) {
   return event.invitationToken;
 }
 
-async function createNewEvent(name, startAt, finishAt, author) {
+async function createNewEvent(name, startAt, finishAt, user) {
   const event = new Event({
-    name, startAt, finishAt, author,
+    name,
+    startAt,
+    finishAt,
+    author: user
   });
-  event.participants.push(author);
-  await event.save();
+  event.participants.push(user);
+  user.addEvent(event);
+  await Promise.all([event.save(), user.save()]);
   return createEventToken(event, finishAt);
 }
 
 async function findEventByToken(invitationToken) {
-  const event = await Event.findOne({ invitationToken, invitationExpires: { $gt: Date.now() } });
+  const event = await Event.findOne({
+    invitationToken,
+    invitationExpires: { $gt: Date.now() }
+  });
   return event;
 }
 
@@ -55,3 +62,12 @@ async function findEventById(id) {
 }
 
 module.exports.findEventById = findEventById;
+
+async function populateEvents(user, events) {
+  events.map(async (event) => {
+    await Event.findById(event).populate('').exec()
+  });
+  return events;
+}
+
+module.exports.populateEvents = populateEvents;
