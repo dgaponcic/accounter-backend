@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 
 const EventSchema = Schema({
   name: String,
-  creationDate: Date,
+  createdAt: { type: Date, default: Date.now },
   startAt: Date,
   finishAt: Date,
   author: { type: mongoose.Schema.ObjectId, ref: 'User' },

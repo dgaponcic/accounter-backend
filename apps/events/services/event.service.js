@@ -15,7 +15,7 @@ async function createNewEvent(name, startAt, finishAt, user) {
     name,
     startAt,
     finishAt,
-    author: user
+    author: user,
   });
   event.participants.push(user);
   user.addEvent(event);
@@ -26,7 +26,7 @@ async function createNewEvent(name, startAt, finishAt, user) {
 async function findEventByToken(invitationToken) {
   const event = await Event.findOne({
     invitationToken,
-    invitationExpires: { $gt: Date.now() }
+    invitationExpires: { $gt: Date.now() },
   });
   return event;
 }
@@ -39,10 +39,6 @@ async function addPeople(event, user) {
   await event.save();
 }
 
-module.exports.createNewEvent = createNewEvent;
-module.exports.findEventByToken = findEventByToken;
-module.exports.addPeople = addPeople;
-
 async function addNewSpending(event, name, price, author) {
   const spending = new Spending({ name, price, author });
   event.spendings.push(spending);
@@ -51,23 +47,34 @@ async function addNewSpending(event, name, price, author) {
   return spending;
 }
 
-module.exports.addNewSpending = addNewSpending;
-
 async function findEventById(id) {
   try {
-    return await Event.findById(id);
+    return await Event.findById(id)
+      .populate('author', 'username')
+      .populate('participants', 'username')
+      .populate('spendings');
   } catch (error) {
     return undefined;
   }
 }
 
-module.exports.findEventById = findEventById;
-
 async function populateEvents(user, events) {
   events.map(async (event) => {
-    await Event.findById(event).populate('').exec()
+    await Event.findById(event).populate('').exec();
   });
   return events;
 }
 
+async function validateUser(event, user) {
+  const participantsIDs = event.participants.map(x => String(x._id));
+  const isParticipant = participantsIDs.includes(String(user._id));
+  return isParticipant;
+}
+
+module.exports.createNewEvent = createNewEvent;
+module.exports.findEventByToken = findEventByToken;
+module.exports.addPeople = addPeople;
+module.exports.addNewSpending = addNewSpending;
+module.exports.findEventById = findEventById;
 module.exports.populateEvents = populateEvents;
+module.exports.validateUser = validateUser;

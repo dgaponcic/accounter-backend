@@ -1,5 +1,18 @@
 const eventService = require('../services/event.service');
-const spendingService = require('../services/spending.service');
+
+async function validateUser(req, res, next) {
+  const { user } = req;
+  const { id } = req.params;
+  const event = await eventService.findEventById(id);
+  if (!event) {
+    return res.status(400).send({ msg: 'Event not found.' });
+  }
+  const isParticipant = await eventService.validateUser(event, user);
+  if (!isParticipant) {
+    return res.status(401).send({ msg: 'You are not a participant to this event.' });
+  }
+  next();
+}
 
 function validateEventCreation(req, res, next) {
   req.checkBody('name', 'Name is required.').notEmpty();
@@ -39,22 +52,6 @@ async function joinEvent(req, res) {
   }
 }
 
-async function validateUser(req, res, next) {
-  const { user } = req;
-  const { id } = req.params;
-  const event = await eventService.findEventById(id);
-  if (!event) {
-    return res.status(400).send({ msg: 'Event not found' });
-  }
-  const isParticipant = await spendingService.validateUser(event, user);
-  if (!isParticipant) {
-    return res
-      .status(401)
-      .send({ msg: 'You are not a participant to this event.' });
-  }
-  next();
-}
-
 async function allEvents(req, res) {
   const { user } = req;
   try {
@@ -82,6 +79,7 @@ async function deleteParticipant(req, res) {
   res.send({ msg: 'success' });
 }
 
+module.exports.validateUser = validateUser;
 module.exports.validateEventCreation = validateEventCreation;
 module.exports.createEvent = createEvent;
 module.exports.joinEvent = joinEvent;
