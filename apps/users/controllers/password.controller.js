@@ -11,7 +11,7 @@ async function validatePasswordReset(req, res, next) {
 }
 
 async function resetPass(req, res) {
-  const { user } = req.user;
+  const { user } = req;
   const { password, newPassword } = req.body;
   try {
     const match = await userService.checkPassword(user.password, password);

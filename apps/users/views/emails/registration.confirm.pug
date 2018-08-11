@@ -1,0 +1,10 @@
+extends email-layout
+
+block content
+  h2 Reegistration Confirmation
+  p Hello. You have registrated. Please click the following button to confirm your profile. Please note this link is only valid for the next hour.
+  +button(resetURL, 'Confirm your account →')
+  p If you can't click the above button please visit 
+    a(href=`${resetURL}`) #{resetURL}
+  br
+  p If you didn't registrated, please ignore this email

@@ -9,6 +9,7 @@ const UserSchema = new Schema({
   password: { type: String },
   isConfirmed: { type: Boolean, default: false },
   isActive: { type: Boolean, default: true },
+  events: [{ type: mongoose.Schema.ObjectId, ref: 'Event' }],
   registrationToken: String,
   registrationExpires: Date,
   resetPasswordToken: String,
@@ -18,6 +19,10 @@ const UserSchema = new Schema({
 UserSchema.methods.getJWT = function () {
   const expirationTime = parseInt(100000);
   return `Bearer ${jwt.sign({ user_id: this._id }, 'secret_key', { expiresIn: expirationTime })}`;
+};
+
+UserSchema.methods.addEvent = function (event) {
+  this.events.push(event);
 };
 
 module.exports.User = mongoose.model('User', UserSchema);
