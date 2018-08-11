@@ -16,7 +16,7 @@ async function validateUserCreationInput(req, res, next) {
   next();
 }
 
-async function create(req, res) {
+async function createUser(req, res) {
   const { username, email, password } = req.body;
 
   try {
@@ -42,10 +42,6 @@ async function confirmRegistration(req, res) {
     return res.status(400).send({ msg: error });
   }
 }
-
-module.exports.validateUserCreationInput = validateUserCreationInput;
-module.exports.create = create;
-module.exports.confirmRegistration = confirmRegistration;
 
 async function validateLoginInput(req, res, next) {
   req.checkBody('username', 'Email or username is required.').notEmpty();
@@ -73,9 +69,6 @@ async function login(req, res) {
   }
 }
 
-module.exports.validateLoginInput = validateLoginInput;
-module.exports.login = login;
-
 async function resendConfirmation(req, res) {
   try {
     const user = await User.findOne({ registrationToken: req.params.token });
@@ -88,4 +81,9 @@ async function resendConfirmation(req, res) {
   }
 }
 
+module.exports.validateUserCreationInput = validateUserCreationInput;
+module.exports.createUser = createUser;
+module.exports.confirmRegistration = confirmRegistration;
+module.exports.validateLoginInput = validateLoginInput;
+module.exports.login = login;
 module.exports.resendConfirmation = resendConfirmation;

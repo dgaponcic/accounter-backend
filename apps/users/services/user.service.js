@@ -1,4 +1,3 @@
-const crypto = require('crypto');
 const argon2 = require('argon2');
 const mailService = require('./mailer.service');
 const { User } = require('../models/user.model');
@@ -9,23 +8,12 @@ async function createUser(username, email, rawPassword) {
   return user.save();
 }
 
-async function createRegistrationToken(user) {
-  const buff = await crypto.randomBytes(30);
-  user.registrationToken = buff.toString('hex');
-  user.registrationExpires = Date.now() + 3600000;
-  user.save();
-}
-
-
 async function registerUser(url, username, email, rawPassword) {
   const user = await createUser(username, email, rawPassword);
-  await createRegistrationToken(user);
+  await user.createRegistrationToken;
   url += user.registrationToken;
   mailService.sendConfirmationEmail(url, user.email);
 }
-
-module.exports.createUser = createUser;
-module.exports.registerUser = registerUser;
 
 async function findUser(input) {
   const user = await User.findOne({
@@ -39,16 +27,11 @@ async function checkPassword(userPass, inputPass) {
   return match;
 }
 
-module.exports.findUser = findUser;
-module.exports.checkPassword = checkPassword;
-
 async function resetPassword(user, rawPassword) {
   const password = await argon2.hash(rawPassword);
   user.password = password;
   return user.save();
 }
-
-module.exports.resetPassword = resetPassword;
 
 async function findByRegistrationToken(token) {
   const user = await User.findOne({
@@ -57,8 +40,6 @@ async function findByRegistrationToken(token) {
   });
   return user;
 }
-
-module.exports.findByRegistrationToken = findByRegistrationToken;
 
 async function checkUser(user) {
   if (user.isConfirmed && user.isActive) {
@@ -79,31 +60,17 @@ async function checkUser(user) {
   };
 }
 
-module.exports.checkUser = checkUser;
-
-async function createPasswordToken(user) {
-  const buff = await crypto.randomBytes(30);
-  user.resetPasswordToken = buff.toString('hex');
-  user.resetPasswordExpires = Date.now() + 3600000;
-  user.save();
-}
-
 async function forgotPassword(url, user) {
-  await createPasswordToken(user);
+  await user.createPasswordToken;
   url += user.resetPasswordToken;
   mailService.forgotPasswordEmail(url, user.email);
 }
 
-
-module.exports.forgotPassword = forgotPassword;
-
 async function resendEmail(url, user) {
-  await createRegistrationToken(user);
+  await user.createRegistrationToken;
   url += user.registrationToken;
   mailService.sendConfirmationEmail(url, user.email);
 }
-
-module.exports.resendEmail = resendEmail;
 
 async function checkPasswordToken(resetPasswordToken) {
   const user = await User.findOne({
@@ -113,4 +80,13 @@ async function checkPasswordToken(resetPasswordToken) {
   return user;
 }
 
+module.exports.createUser = createUser;
+module.exports.registerUser = registerUser;
+module.exports.findUser = findUser;
+module.exports.checkPassword = checkPassword;
+module.exports.resetPassword = resetPassword;
+module.exports.findByRegistrationToken = findByRegistrationToken;
+module.exports.checkUser = checkUser;
+module.exports.forgotPassword = forgotPassword;
+module.exports.resendEmail = resendEmail;
 module.exports.checkPasswordToken = checkPasswordToken;
