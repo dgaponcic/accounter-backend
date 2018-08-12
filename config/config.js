@@ -1,4 +1,4 @@
-const convict = require('convict');
+import convict from 'convict';
 
 const config = convict({
   env: {
@@ -18,11 +18,11 @@ const config = convict({
   port: {
     doc: 'The port to bind.',
     format: 'port',
-    default: 9000,
+    default: 8000,
     env: 'PORT',
   },
 });
 
 config.validate();
 
-module.exports = config;
+export default config;

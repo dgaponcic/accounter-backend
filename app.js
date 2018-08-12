@@ -1,16 +1,17 @@
-const express = require('express');
-const chalk = require('chalk');
-const morgan = require('morgan');
-const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
-const passport = require('passport');
-const cors = require('cors');
-const validator = require('./common/validator');
-const authRouter = require('./apps/users/routes/auth.routes');
-const eventRouter = require('./apps/events/routes/events.routes');
-const config = require('./config/config');
-require('dotenv').config();
+import express from 'express';
+import chalk from 'chalk';
+import morgan from 'morgan';
+import bodyParser from 'body-parser';
+import mongoose from 'mongoose';
+import passport from 'passport';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import validator from './common/validator';
+import authRouter from './apps/users/routes/auth.routes';
+import eventRouter from './apps/events/routes/events.routes';
+import config from './config/config';
 
+dotenv.config();
 const app = express();
 // Set mongoose.Promise to any Promise implementation
 mongoose.Promise = Promise;

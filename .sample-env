@@ -1,2 +1,2 @@
-registerURL='http://192.168.84.220:8080/#/confirmation/',
-passwordResetURL='http://192.168.84.220:8080/#/forgot/confirmation/'
+registerURL=http://192.168.84.220:8080/#/confirmation/
+passwordResetURL=http://192.168.84.220:8080/#/forgot/confirmation/

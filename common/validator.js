@@ -18,4 +18,4 @@ const validator = expressValidator({
   },
 });
 
-module.exports = validator;
+export default validator;

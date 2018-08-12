@@ -1,5 +1,6 @@
-const express = require('express');
-const passport = require('passport');
+import express from 'express';
+import passport from 'passport';
+
 const EventController = require('../controllers/event.controller');
 const SpendingController = require('../controllers/spending.controller');
 
@@ -39,4 +40,4 @@ route.post(
   SpendingController.createSpending,
 );
 
-module.exports = route;
+export default route;
