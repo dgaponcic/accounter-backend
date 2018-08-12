@@ -3,15 +3,15 @@ const mailService = require('./mailer.service');
 const { User } = require('../models/user.model');
 
 async function createUser(username, email, rawPassword) {
-  const password = await argon2.hash(rawPassword);
-  const user = await new User({ username, email, password });
+  const user = await new User({ username, email });
+  await user.createPassword(rawPassword);
+  await user.addRegistrationToken();
   return user.save();
 }
 
 async function registerUser(url, username, email, rawPassword) {
   const user = await createUser(username, email, rawPassword);
-  await user.createRegistrationToken;
-  url += user.registrationToken;
+  url += user.tokens.registrationToken;
   mailService.sendConfirmationEmail(url, user.email);
 }
 
@@ -28,15 +28,13 @@ async function checkPassword(userPass, inputPass) {
 }
 
 async function resetPassword(user, rawPassword) {
-  const password = await argon2.hash(rawPassword);
-  user.password = password;
-  return user.save();
+  user.createPassword(rawPassword);
 }
 
 async function findByRegistrationToken(token) {
   const user = await User.findOne({
-    registrationToken: token,
-    registrationExpires: { $gt: Date.now() },
+    'tokens.registrationToken': token,
+    'tokens.registrationExpires': { $gt: Date.now() },
   });
   return user;
 }
@@ -61,21 +59,21 @@ async function checkUser(user) {
 }
 
 async function forgotPassword(url, user) {
-  await user.createPasswordToken;
-  url += user.resetPasswordToken;
+  await user.createPasswordToken();
+  url += user.tokens.resetPasswordToken;
   mailService.forgotPasswordEmail(url, user.email);
 }
 
 async function resendEmail(url, user) {
-  await user.createRegistrationToken;
-  url += user.registrationToken;
+  await user.addRegistrationToken();
+  url += user.tokens.registrationToken;
   mailService.sendConfirmationEmail(url, user.email);
 }
 
 async function checkPasswordToken(resetPasswordToken) {
   const user = await User.findOne({
-    resetPasswordToken,
-    resetPasswordExpires: { $gt: Date.now() },
+    'tokens.resetPasswordToken': resetPasswordToken,
+    'tokens.resetPasswordExpires': { $gt: Date.now() },
   });
   return user;
 }

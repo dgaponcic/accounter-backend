@@ -16,6 +16,8 @@ async function validateUser(req, res, next) {
 
 function validateEventCreation(req, res, next) {
   req.checkBody('name', 'Name is required.').notEmpty();
+  req.checkBody('startDate', 'Start date is required.').notEmpty();
+  req.checkBody('finishDate', 'Finish date is required.');
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors);
   next();
