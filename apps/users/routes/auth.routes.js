@@ -7,17 +7,38 @@ const router = express.Router();
 
 router.post('/', UserController.validateUserCreationInput, UserController.createUser);
 
-router.get('/confirmation/:token', UserController.confirmRegistration);
-router.post('/login', UserController.validateLoginInput, UserController.login);
-router.get('/resend/:token', UserController.resendConfirmation);
+router.get(
+  '/confirmation/:token',
+  UserController.confirmRegistration,
+);
+
+router.post(
+  '/login',
+  UserController.validateLoginInput,
+  UserController.login,
+);
+
+router.get(
+  '/resend/:token',
+  UserController.resendConfirmation,
+);
+
 router.post(
   '/reset',
   passport.authenticate('jwt', { session: false }),
   PasswordController.validatePasswordReset,
   PasswordController.resetPass,
 );
-router.post('/forgot', PasswordController.validatePasswordForgot, PasswordController.forgotPass);
-router.get('/change/:token', PasswordController.checkPassToken);
+
+router.post(
+  '/forgot',
+  PasswordController.validatePasswordForgot,
+  PasswordController.forgotPass,
+);
+router.get(
+  '/change/:token',
+  PasswordController.checkPassToken,
+);
 router.post(
   '/change/:token',
   PasswordController.validateResetPassword,

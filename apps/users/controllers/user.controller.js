@@ -2,6 +2,7 @@ const validator = require('email-validator');
 const passValidator = require('../../../config/password');
 const { User } = require('../models/user.model');
 const userService = require('../services/user.service');
+require('dotenv').config();
 
 async function validateUserCreationInput(req, res, next) {
   req.checkBody('username', 'User name is required.').notEmpty();
@@ -20,8 +21,7 @@ async function createUser(req, res) {
   const { username, email, password } = req.body;
 
   try {
-    const url = 'http://192.168.84.220:8080/#/confirmation/';
-    await userService.registerUser(url, username, email, password);
+    await userService.registerUser(username, email, password);
     return res.status(201).send({ msg: 'success' });
   } catch (error) {
     if (error.name === 'MongoError' && error.code === 11000) return res.status(400).send({ msg: 'Already used.' });
@@ -73,8 +73,7 @@ async function resendConfirmation(req, res) {
   try {
     const user = await User.findOne({ registrationToken: req.params.token });
     if (!user) return res.status(404).send({ msg: 'Not found.' });
-    const url = 'http://192.168.84.220:8080/#/confirmation/';
-    await userService.resendEmail(url, user);
+    await userService.resendEmail(user);
     return res.send({ msg: 'success' });
   } catch (error) {
     return res.status(400).send({ msg: error });

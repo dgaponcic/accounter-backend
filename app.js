@@ -6,9 +6,10 @@ const mongoose = require('mongoose');
 const passport = require('passport');
 const cors = require('cors');
 const config = require('./config/database');
-const validator = require('./config/validator');
+const validator = require('./common/validator');
 const authRouter = require('./apps/users/routes/auth.routes');
 const eventRouter = require('./apps/events/routes/events.routes');
+require('dotenv').config();
 
 const app = express();
 mongoose.Promise = Promise;

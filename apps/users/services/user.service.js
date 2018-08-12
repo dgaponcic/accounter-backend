@@ -9,9 +9,9 @@ async function createUser(username, email, rawPassword) {
   return user.save();
 }
 
-async function registerUser(url, username, email, rawPassword) {
+async function registerUser(username, email, rawPassword) {
   const user = await createUser(username, email, rawPassword);
-  url += user.tokens.registrationToken;
+  const url = `${process.env.registerURL}${user.tokens.registrationToken}`;
   mailService.sendConfirmationEmail(url, user.email);
 }
 
@@ -58,15 +58,15 @@ async function checkUser(user) {
   };
 }
 
-async function forgotPassword(url, user) {
+async function forgotPassword(user) {
   await user.createPasswordToken();
-  url += user.tokens.resetPasswordToken;
+  const url = `${process.env.passwordResetURL}${user.tokens.resetPasswordToken}`;
   mailService.forgotPasswordEmail(url, user.email);
 }
 
-async function resendEmail(url, user) {
+async function resendEmail(user) {
   await user.addRegistrationToken();
-  url += user.tokens.registrationToken;
+  const url = `${process.env.registerURL}${user.tokens.registrationToken}`;
   mailService.sendConfirmationEmail(url, user.email);
 }
 
