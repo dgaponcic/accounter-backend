@@ -5,7 +5,11 @@ const PasswordController = require('../controllers/password.controller');
 
 const router = express.Router();
 
-router.post('/', UserController.validateUserCreationInput, UserController.createUser);
+router.post(
+  '/',
+  UserController.validateUserCreationInput,
+  UserController.createUser,
+);
 
 router.get(
   '/confirmation/:token',

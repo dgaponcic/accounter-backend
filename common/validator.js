@@ -1,5 +1,6 @@
 const expressValidator = require('express-validator');
 
+// Config express validator
 const validator = expressValidator({
   errorFormatter: (param, msg, value) => {
     const namespace = param.split('.');

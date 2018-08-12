@@ -1,6 +1,7 @@
 const eventService = require('../services/event.service');
 
 async function validateSpendingInput(req, res, next) {
+  // Check the input
   req.checkBody('name', 'Name is required.').notEmpty();
   if (req.body.name) {
     req.checkBody('name', 'Too short name').isLength({ min: 3 });
@@ -17,8 +18,10 @@ async function createSpending(req, res) {
   const { name, price } = req.body;
   const { id } = req.params;
   try {
+    // Find event by id
     const event = await eventService.findEvent(id);
     if (!event) return res.status(404).send({ msg: 'Not Found.' });
+    // Add new spending to event
     await eventService.addNewSpending(event, name, price, req.user);
     return res.send({ msg: 'success' });
   } catch (error) {

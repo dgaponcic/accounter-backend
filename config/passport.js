@@ -8,6 +8,7 @@ module.exports = function (passport) {
 
   passport.use(
     new Strategy(opts, (jwtPayload, done) => {
+      // Find the user by token
       User.findById(jwtPayload.user_id, (err, user) => {
         if (err) return done(err, false);
         if (user) return done(null, user);

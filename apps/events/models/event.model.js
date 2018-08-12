@@ -3,6 +3,7 @@ const crypto = require('crypto');
 
 const { Schema } = mongoose;
 
+// Define user schema
 const EventSchema = Schema({
   name: { type: String, trim: true, required: true },
   createdAt: { type: Date, default: Date.now },
@@ -17,6 +18,7 @@ const EventSchema = Schema({
   },
 });
 
+// Create the invitation token
 EventSchema.methods.createEventToken = async function () {
   const buff = await crypto.randomBytes(30);
   this.token.invitationToken = buff.toString('hex');
@@ -24,11 +26,13 @@ EventSchema.methods.createEventToken = async function () {
   await this.save();
 };
 
+// Add participants to the event
 EventSchema.methods.addParticipants = async function (user) {
   this.participants.push(user);
   await this.save();
 };
 
+// Add spending to the event
 EventSchema.methods.addSpendings = async function (spending) {
   this.spendings.push(spending);
   await this.save();
