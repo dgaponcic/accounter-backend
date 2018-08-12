@@ -14,15 +14,18 @@
     "argon2": "^0.19.3",
     "async": "^2.6.1",
     "async-waterfall": "^0.1.5",
+    "babel": "^6.23.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
     "chalk": "^2.4.1",
+    "convict": "^4.3.2",
     "cors": "^2.8.4",
     "debug": "^3.1.0",
     "dotenv": "^6.0.0",
     "email-validator": "^2.0.4",
     "eslint-config-airbnb": "^17.0.0",
     "eslint-config-prettier": "^2.9.0",
+    "esm": "^3.0.74",
     "express": "^4.16.3",
     "express-session": "^1.15.6",
     "express-validator": "^5.2.0",
@@ -51,6 +54,7 @@
     }
   },
   "devDependencies": {
+    "babel-plugin-import": "^1.8.0",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^13.0.0",
     "eslint-plugin-import": "^2.13.0"

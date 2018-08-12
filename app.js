@@ -5,16 +5,16 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const passport = require('passport');
 const cors = require('cors');
-const config = require('./config/database');
 const validator = require('./common/validator');
 const authRouter = require('./apps/users/routes/auth.routes');
 const eventRouter = require('./apps/events/routes/events.routes');
+const config = require('./config/config');
 require('dotenv').config();
 
 const app = express();
 mongoose.Promise = Promise;
-mongoose.connect(config.database, { useNewUrlParser: true });
-const port = 8000;
+mongoose.connect(config.get('mongo.main'), { useNewUrlParser: true });
+const port = config.get('port');
 
 app.use(cors());
 app.use(morgan('tiny'));
