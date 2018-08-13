@@ -1,11 +1,13 @@
-const validator = require('email-validator');
-const passValidator = require('../../../config/password');
-const { User } = require('../models/user.model');
-const userService = require('../services/user.service');
-require('dotenv').config();
+import dotenv from 'dotenv';
+import validator from 'email-validator';
+import passValidator from '../../../config/password';
+import User from '../models/user.model';
+import * as userService from '../services/user.service';
+
+dotenv.config();
 
 // Validate the input
-async function validateUserCreationInput(req, res, next) {
+export async function validateUserCreationInput(req, res, next) {
   req.checkBody('username', 'User name is required.').notEmpty();
   req.checkBody('username', 'Too long ot too short username.').isLength({ min: 5, max: 50 });
   if (validator.validate(req.body.username)) return res.status(400).send({ msg: 'Username can not be an email.' });
@@ -20,7 +22,7 @@ async function validateUserCreationInput(req, res, next) {
 }
 
 // Create a new user
-async function createUser(req, res) {
+export async function createUser(req, res) {
   const { username, email, password } = req.body;
   try {
     // Call the register user service
@@ -34,7 +36,7 @@ async function createUser(req, res) {
 }
 
 // Confirm the user
-async function confirmRegistration(req, res) {
+export async function confirmRegistration(req, res) {
   try {
     // Find the user by registration Token
     const user = await userService.findByRegistrationToken(req.params.token);
@@ -51,7 +53,7 @@ async function confirmRegistration(req, res) {
   }
 }
 
-async function validateLoginInput(req, res, next) {
+export async function validateLoginInput(req, res, next) {
   // Check if the required fields are not empty
   req.checkBody('username', 'Email or username is required.').notEmpty();
   req.checkBody('password', 'Password is required.').notEmpty();
@@ -60,7 +62,7 @@ async function validateLoginInput(req, res, next) {
   next();
 }
 
-async function login(req, res) {
+export async function login(req, res) {
   const { username, password } = req.body;
   try {
     // Find the user by username
@@ -83,7 +85,7 @@ async function login(req, res) {
 }
 
 // Resend registration confirmation if token expired
-async function resendConfirmation(req, res) {
+export async function resendConfirmation(req, res) {
   try {
     // Find user by expired token
     const user = await User.findOne({ registrationToken: req.params.token });
@@ -95,10 +97,3 @@ async function resendConfirmation(req, res) {
     return res.status(400).send({ msg: error });
   }
 }
-
-module.exports.validateUserCreationInput = validateUserCreationInput;
-module.exports.createUser = createUser;
-module.exports.confirmRegistration = confirmRegistration;
-module.exports.validateLoginInput = validateLoginInput;
-module.exports.login = login;
-module.exports.resendConfirmation = resendConfirmation;

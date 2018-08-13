@@ -1,4 +1,4 @@
-const PasswordValidator = require('password-validator');
+import PasswordValidator from 'password-validator';
 
 // Define password validator
 const schema = new PasswordValidator();
@@ -9,4 +9,4 @@ schema
   .has().not()
   .spaces();
 
-module.exports = schema;
+export default schema;

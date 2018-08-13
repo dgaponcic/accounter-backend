@@ -1,4 +1,4 @@
-const eventService = require('../services/event.service');
+import * as eventService from '../services/event.service';
 
 export async function validateUser(req, res, next) {
   const { user } = req;
@@ -65,7 +65,7 @@ export async function allEvents(req, res) {
   const { user } = req;
   try {
     // Populate events
-    const events = await eventService.populateEvents(user, user.events);
+    const events = await eventService.allEvents(user.events);
     return res.send({ msg: 'success', events });
   } catch (error) {
     return res.status(400).send({ msg: error });
@@ -90,14 +90,3 @@ export async function sendEvent(req, res) {
 export async function deleteParticipant(req, res) {
   res.send({ msg: 'success' });
 }
-
-// module.exports.validateUser = validateUser;
-// export validateUser;
-// export default validateEventCreation;
-// module.exports.validateEventCreation = validateEventCreation;
-// module.exports.createEvent = createEvent;
-// module.exports.joinEvent = joinEvent;
-// module.exports.validateUser = validateUser;
-// module.exports.deleteParticipant = deleteParticipant;
-// module.exports.allEvents = allEvents;
-// module.exports.sendEvent = sendEvent;

@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const crypto = require('crypto');
+import mongoose from 'mongoose';
+import crypto from 'crypto';
 
 const { Schema } = mongoose;
 
@@ -38,4 +38,4 @@ EventSchema.methods.addSpendings = async function (spending) {
   await this.save();
 };
 
-module.exports.Event = mongoose.model('Event', EventSchema);
+export default mongoose.model('Event', EventSchema);

@@ -1,7 +1,7 @@
-const express = require('express');
-const passport = require('passport');
-const UserController = require('../controllers/user.controller');
-const PasswordController = require('../controllers/password.controller');
+import express from 'express';
+import passport from 'passport';
+import * as UserController from '../controllers/user.controller';
+import * as PasswordController from '../controllers/password.controller';
 
 const router = express.Router();
 
@@ -31,13 +31,13 @@ router.post(
   '/reset',
   passport.authenticate('jwt', { session: false }),
   PasswordController.validatePasswordReset,
-  PasswordController.resetPass,
+  PasswordController.resetPassword,
 );
 
 router.post(
   '/forgot',
   PasswordController.validatePasswordForgot,
-  PasswordController.forgotPass,
+  PasswordController.forgotPassword,
 );
 router.get(
   '/change/:token',

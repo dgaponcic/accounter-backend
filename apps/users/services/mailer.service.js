@@ -1,5 +1,5 @@
-const pug = require('pug');
-const mailService = require('../../../common/services/email.service');
+import pug from 'pug';
+import * as mailService from '../../../common/services/email.service';
 
 // generate the html from pug file
 const generateHTML = (filename, url) => {
@@ -10,18 +10,15 @@ const generateHTML = (filename, url) => {
 };
 
 // Send registration confirmation email
-async function sendConfirmationEmail(url, email) {
+export async function sendConfirmationEmail(url, email) {
   const subject = 'Confirmation Mail';
   const html = generateHTML('registration.confirm', url);
   return mailService.sendMail(email, subject, html);
 }
 
 // Send forgot password confirmation email
-async function forgotPasswordEmail(url, email) {
+export async function forgotPasswordEmail(url, email) {
   const subject = 'Forgot Password';
   const html = generateHTML('password.forgot', url);
   return mailService.sendMail(email, subject, html);
 }
-
-module.exports.sendConfirmationEmail = sendConfirmationEmail;
-module.exports.forgotPasswordEmail = forgotPasswordEmail;

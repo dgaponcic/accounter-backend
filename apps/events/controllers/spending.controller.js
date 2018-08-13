@@ -1,4 +1,4 @@
-const eventService = require('../services/event.service');
+import * as eventService from '../services/event.service';
 
 export async function validateSpendingInput(req, res, next) {
   // Check the input
@@ -28,6 +28,3 @@ export async function createSpending(req, res) {
     return res.status(400).send(error);
   }
 }
-
-module.exports.validateSpendingInput = validateSpendingInput;
-module.exports.createSpending = createSpending;

@@ -1,13 +1,14 @@
-const { Event } = require('../models/event.model');
-const { Spending } = require('../models/spending.model');
+// const doxl = require('doxl');
+import Event from '../models/event.model';
+import Spending from '../models/spending.model';
 
 // Generate the invitation token
-async function createEventToken(event) {
+export async function createEventToken(event) {
   await event.createEventToken();
   return event.invitationToken;
 }
 
-async function createNewEvent(name, startAt, finishAt, user) {
+export async function createNewEvent(name, startAt, finishAt, user) {
   // Create a new instance of Event
   const event = new Event({
     name,
@@ -24,7 +25,7 @@ async function createNewEvent(name, startAt, finishAt, user) {
 }
 
 // Check if the token is valid
-async function findEventByToken(invitationToken) {
+export async function findEventByToken(invitationToken) {
   const event = await Event.findOne({
     'token.invitationToken': invitationToken,
     'token.invitationExpires': { $gt: Date.now() },
@@ -33,13 +34,13 @@ async function findEventByToken(invitationToken) {
 }
 
 // Check if the user participate to the event
-async function validateUser(event, user) {
+export async function validateUser(event, user) {
   const participantsIDs = event.participants.map(x => String(x._id));
   const isParticipant = participantsIDs.includes(String(user._id));
   return isParticipant;
 }
 
-async function addPeople(event, user) {
+export async function addPeople(event, user) {
   // Check if the user is a participant
   const isParticipant = await validateUser(event, user);
   if (!isParticipant) {
@@ -50,7 +51,7 @@ async function addPeople(event, user) {
   }
 }
 
-async function addNewSpending(event, name, price, author) {
+export async function addNewSpending(event, name, price, author) {
   // Create new instance of Spending
   const spending = new Spending({ name, price, author });
   await spending.save();
@@ -61,7 +62,7 @@ async function addNewSpending(event, name, price, author) {
   return spending;
 }
 
-async function findEventById(id) {
+export async function findEventById(id) {
   try {
     // Populate the fields
     return await Event.findById(id)
@@ -74,15 +75,15 @@ async function findEventById(id) {
 }
 
 // Find event by id
-async function findEvent(id) {
+export async function findEvent(id) {
   const event = await Event.findById(id);
   return event;
 }
 
-module.exports.createNewEvent = createNewEvent;
-module.exports.findEventByToken = findEventByToken;
-module.exports.addPeople = addPeople;
-module.exports.addNewSpending = addNewSpending;
-module.exports.findEventById = findEventById;
-module.exports.validateUser = validateUser;
-module.exports.findEvent = findEvent;
+export async function allEvents(events) {
+  await events.forEach(async (eventId) => {
+    const event = await findEvent(eventId);
+    eventId = { name: event.name, id: event.id };
+  });
+  return events;
+}

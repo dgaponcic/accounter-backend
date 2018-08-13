@@ -1,9 +1,10 @@
-const passValidator = require('../../../config/password');
-const userService = require('../services/user.service');
+import passValidator from '../../../config/password';
+import * as userService from '../services/user.service';
 
 // Validate the input for password reset
-async function validatePasswordReset(req, res, next) {
+export async function validatePasswordReset(req, res, next) {
   // Check if the required fields are not empty
+  console.log('here')
   req.checkBody('password', 'Password is required.').notEmpty();
   req.checkBody('newPassword', 'Introduce new password.').notEmpty();
   const errors = req.validationErrors();
@@ -15,7 +16,7 @@ async function validatePasswordReset(req, res, next) {
   next();
 }
 
-async function resetPassword(req, res) {
+export async function resetPassword(req, res) {
   const { user } = req;
   const { password, newPassword } = req.body;
   try {
@@ -33,14 +34,14 @@ async function resetPassword(req, res) {
 }
 
 
-function validatePasswordForgot(req, res, next) {
+export function validatePasswordForgot(req, res, next) {
   req.checkBody('username', 'Email or username is required.').notEmpty();
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors);
   next();
 }
 
-async function forgotPass(req, res) {
+export async function forgotPassword(req, res) {
   try {
     const { username } = req.body;
     // Find the user by username
@@ -54,7 +55,7 @@ async function forgotPass(req, res) {
   }
 }
 
-async function checkPassToken(req, res) {
+export async function checkPassToken(req, res) {
   try {
     // Check if the registration token is valid
     const user = await userService.checkPasswordToken(req.params.token);
@@ -65,7 +66,7 @@ async function checkPassToken(req, res) {
   }
 }
 
-function validateResetPassword(req, res, next) {
+export function validateResetPassword(req, res, next) {
   // Check if the new password is provided
   req.checkBody('newPassword', 'Password is required.').notEmpty();
   const errors = req.validationErrors();
@@ -75,7 +76,7 @@ function validateResetPassword(req, res, next) {
   next();
 }
 
-async function changePassword(req, res) {
+export async function changePassword(req, res) {
   try {
     // Check if the password reset token is valid
     const user = await userService.checkPasswordToken(req.params.token);
@@ -91,11 +92,3 @@ async function changePassword(req, res) {
     return res.status(400).send(error);
   }
 }
-
-module.exports.validatePasswordReset = validatePasswordReset;
-module.exports.resetPass = resetPassword;
-module.exports.validatePasswordForgot = validatePasswordForgot;
-module.exports.forgotPass = forgotPass;
-module.exports.checkPassToken = checkPassToken;
-module.exports.validateResetPassword = validateResetPassword;
-module.exports.changePassword = changePassword;

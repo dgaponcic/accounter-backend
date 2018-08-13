@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
-const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
-const argon2 = require('argon2');
+import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import argon2 from 'argon2';
 
 const { Schema } = mongoose;
 
@@ -69,4 +69,12 @@ UserSchema.methods.createPassword = async function (password) {
   await this.save();
 };
 
-module.exports.User = mongoose.model('User', UserSchema);
+let User;
+
+try {
+  User = mongoose.model('User');
+} catch (e) {
+  User = mongoose.model('User', UserSchema);
+}
+
+export default User;

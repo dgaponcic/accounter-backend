@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const { Schema } = mongoose;
 
@@ -20,4 +20,4 @@ SpendingSchema.methods.addParticipants = async function (event) {
   await this.save();
 };
 
-module.exports.Spending = mongoose.model('Spending', SpendingSchema);
+export default mongoose.model('Spending', SpendingSchema);

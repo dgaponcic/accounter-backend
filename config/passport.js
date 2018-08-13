@@ -1,7 +1,7 @@
-const { ExtractJwt, Strategy } = require('passport-jwt');
-const { User } = require('../apps/users/models/user.model');
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import User from '../apps/users/models/user.model';
 
-module.exports = function (passport) {
+export default function (passport) {
   const opts = {};
   opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
   opts.secretOrKey = 'secret_key';
@@ -16,4 +16,4 @@ module.exports = function (passport) {
       });
     }),
   );
-};
+}

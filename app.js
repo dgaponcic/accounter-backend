@@ -10,7 +10,9 @@ import validator from './common/validator';
 import authRouter from './apps/users/routes/auth.routes';
 import eventRouter from './apps/events/routes/events.routes';
 import config from './config/config';
+import passportConfig from './config/passport';
 
+passportConfig(passport);
 dotenv.config();
 const app = express();
 // Set mongoose.Promise to any Promise implementation
@@ -23,8 +25,6 @@ app.use(morgan('tiny'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(validator);
-
-require('./config/passport')(passport);
 
 // Keep the user in session
 app.use(passport.initialize());
