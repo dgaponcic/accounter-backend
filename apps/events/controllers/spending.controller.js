@@ -1,6 +1,6 @@
 const eventService = require('../services/event.service');
 
-async function validateSpendingInput(req, res, next) {
+export async function validateSpendingInput(req, res, next) {
   // Check the input
   req.checkBody('name', 'Name is required.').notEmpty();
   if (req.body.name) {
@@ -14,7 +14,7 @@ async function validateSpendingInput(req, res, next) {
   next();
 }
 
-async function createSpending(req, res) {
+export async function createSpending(req, res) {
   const { name, price } = req.body;
   const { id } = req.params;
   try {

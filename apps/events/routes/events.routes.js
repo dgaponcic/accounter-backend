@@ -1,8 +1,7 @@
 import express from 'express';
 import passport from 'passport';
-
-const EventController = require('../controllers/event.controller');
-const SpendingController = require('../controllers/spending.controller');
+import * as EventController from '../controllers/event.controller';
+import * as SpendingController from '../controllers/spending.controller';
 
 const route = express.Router();
 

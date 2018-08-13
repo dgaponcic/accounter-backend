@@ -1,6 +1,6 @@
 const eventService = require('../services/event.service');
 
-async function validateUser(req, res, next) {
+export async function validateUser(req, res, next) {
   const { user } = req;
   const { id } = req.params;
   // Find the event by id
@@ -16,7 +16,7 @@ async function validateUser(req, res, next) {
   next();
 }
 
-function validateEventCreation(req, res, next) {
+export function validateEventCreation(req, res, next) {
   // Check if the required fields are not empty
   req.checkBody('name', 'Name is required.').notEmpty();
   req.checkBody('startDate', 'Start date is required.').notEmpty();
@@ -26,7 +26,7 @@ function validateEventCreation(req, res, next) {
   next();
 }
 
-async function createEvent(req, res) {
+export async function createEvent(req, res) {
   const { name, startDate, finishDate } = req.body;
   const { user } = req;
   try {
@@ -43,7 +43,7 @@ async function createEvent(req, res) {
   }
 }
 
-async function joinEvent(req, res) {
+export async function joinEvent(req, res) {
   const { user } = req;
   const { token } = req.params;
   try {
@@ -61,7 +61,7 @@ async function joinEvent(req, res) {
 }
 
 // Give information about all events
-async function allEvents(req, res) {
+export async function allEvents(req, res) {
   const { user } = req;
   try {
     // Populate events
@@ -73,7 +73,7 @@ async function allEvents(req, res) {
 }
 
 // Give information about the event
-async function sendEvent(req, res) {
+export async function sendEvent(req, res) {
   const { id } = req.params;
   try {
     // Find the event by id
@@ -87,15 +87,17 @@ async function sendEvent(req, res) {
   }
 }
 
-async function deleteParticipant(req, res) {
+export async function deleteParticipant(req, res) {
   res.send({ msg: 'success' });
 }
 
-module.exports.validateUser = validateUser;
-module.exports.validateEventCreation = validateEventCreation;
-module.exports.createEvent = createEvent;
-module.exports.joinEvent = joinEvent;
-module.exports.validateUser = validateUser;
-module.exports.deleteParticipant = deleteParticipant;
-module.exports.allEvents = allEvents;
-module.exports.sendEvent = sendEvent;
+// module.exports.validateUser = validateUser;
+// export validateUser;
+// export default validateEventCreation;
+// module.exports.validateEventCreation = validateEventCreation;
+// module.exports.createEvent = createEvent;
+// module.exports.joinEvent = joinEvent;
+// module.exports.validateUser = validateUser;
+// module.exports.deleteParticipant = deleteParticipant;
+// module.exports.allEvents = allEvents;
+// module.exports.sendEvent = sendEvent;

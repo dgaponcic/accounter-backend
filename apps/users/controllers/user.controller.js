@@ -22,7 +22,6 @@ async function validateUserCreationInput(req, res, next) {
 // Create a new user
 async function createUser(req, res) {
   const { username, email, password } = req.body;
-
   try {
     // Call the register user service
     await userService.registerUser(username, email, password);
