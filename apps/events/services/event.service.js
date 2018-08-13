@@ -80,10 +80,8 @@ export async function findEvent(id) {
   return event;
 }
 
+// Return all user's events
 export async function allEvents(events) {
-  await events.forEach(async (eventId) => {
-    const event = await findEvent(eventId);
-    eventId = { name: event.name, id: event.id };
-  });
-  return events;
+  const eventsList = await Event.find({ _id: { $in: events } }).select({ name: 1, _id: 1 }).exec();
+  return eventsList;
 }
