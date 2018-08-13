@@ -12,11 +12,21 @@ const SpendingSchema = Schema({
     ref: 'User',
   }],
   price: { type: Number, required: true },
+  payers: [{
+    type: mongoose.Schema.ObjectId,
+    ref: 'User',
+  }],
 });
 
 // Add participants to the spending
 SpendingSchema.methods.addParticipants = async function (event) {
   this.participants = event.participants;
+  await this.save();
+};
+
+// Add payers to spendings
+SpendingSchema.methods.addPayers = async function (user) {
+  this.payers.push(user);
   await this.save();
 };
 

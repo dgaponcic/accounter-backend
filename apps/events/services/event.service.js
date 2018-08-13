@@ -55,6 +55,8 @@ export async function addNewSpending(event, name, price, author) {
   // Create new instance of Spending
   const spending = new Spending({ name, price, author });
   await spending.save();
+  // Default the author pays for the spending
+  spending.addPayers(spending.author);
   // Add the spending to event
   event.addSpendings(spending);
   // Add participants to event
