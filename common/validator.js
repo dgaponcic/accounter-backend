@@ -1,4 +1,4 @@
-const expressValidator = require('express-validator');
+const expressValidator = require('express-validator'); //TODO: Please import me
 
 // Config express validator
 const validator = expressValidator({
@@ -13,9 +13,9 @@ const validator = expressValidator({
     return {
       param: formParam,
       msg,
-      value,
+      value
     };
-  },
+  }
 });
 
 export default validator;

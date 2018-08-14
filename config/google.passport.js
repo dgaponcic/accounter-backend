@@ -7,18 +7,22 @@ const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 //   credentials (in this case, an accessToken, refreshToken, and Google
 //   profile), and invoke a callback with a user object.
 
-export default function (passport) {
+export default function(passport) {
+  // TODO: Export just strategy and use is in app.js
   passport.use(
     new GoogleStrategy(
       {
-        clientID: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: 'https://localhost:8000/users/google/callback',
-        passReqToCallback: true,
+        clientID: process.env.GOOGLE_CLIENT_ID, //TODO: Use convit
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET, //TODO: Use convit
+        callbackURL: 'https://localhost:8000/users/google/callback', //TODO: value to setting and use it
+        passReqToCallback: true
       },
       (accessToken, refreshToken, profile, done) => {
-        User.findOrCreate({ googleId: profile.id }, (err, user) => done(err, user));
-      },
-    ),
+        // TODO: User user service, don't use model directly
+        User.findOrCreate({ googleId: profile.id }, (err, user) =>
+          done(err, user)
+        );
+      }
+    )
   );
 }
