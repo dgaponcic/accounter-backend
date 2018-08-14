@@ -2,20 +2,17 @@ import express from 'express';
 import passport from 'passport';
 import * as EventController from '../controllers/event.controller';
 import * as SpendingController from '../controllers/spending.controller';
+import catchAsyncErrors from '../../../settings/error.handler';
 
 const route = express.Router();
 
-route.get(
-  '/',
-  passport.authenticate('jwt', { session: false }),
-  EventController.allEvents,
-);
+route.get('/', passport.authenticate('jwt', { session: false }), EventController.allEvents);
 
 route.get(
   '/:id',
   passport.authenticate('jwt', { session: false }),
-  EventController.validateUser,
-  EventController.sendEvent,
+  catchAsyncErrors(EventController.validateUser),
+  EventController.getEvent,
 );
 
 route.post(
@@ -49,8 +46,8 @@ route.post(
 route.get(
   '/:id/spending/:spendingId',
   passport.authenticate('jwt', { session: false }),
-  EventController.validateUser,
+  catchAsyncErrors(EventController.validateUser),
   SpendingController.getSpending,
-)
+);
 
 export default route;

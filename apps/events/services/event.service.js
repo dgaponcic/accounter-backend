@@ -1,4 +1,3 @@
-// const doxl = require('doxl');
 import Event from '../models/event.model';
 import Spending from '../models/spending.model';
 
@@ -78,7 +77,6 @@ export async function findEventById(id) {
 // Find event by id
 export async function findEvent(id) {
   const event = await Event.findById(id);
-  console.log(event)
   return event;
 }
 

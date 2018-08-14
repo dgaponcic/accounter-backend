@@ -1,7 +1,7 @@
 import Spending from '../models/spending.model';
 
 export async function findSpendingById(id) {
-	const spending = await Spending.findOne({ id });
+	const spending = await Spending.findById(id)
   return spending;
 }
 

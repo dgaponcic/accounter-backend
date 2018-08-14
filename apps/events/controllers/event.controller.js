@@ -31,12 +31,7 @@ export async function createEvent(req, res) {
   const { user } = req;
   try {
     // Create a new event
-    const eventToken = await eventService.createNewEvent(
-      name,
-      startDate,
-      finishDate,
-      user,
-    );
+    const eventToken = await eventService.createNewEvent(name, startDate, finishDate, user);
     return res.status(201).send({ msg: 'success', eventToken });
   } catch (error) {
     return res.status(400).send({ msg: error });
@@ -73,7 +68,7 @@ export async function allEvents(req, res) {
 }
 
 // Give information about the event
-export async function sendEvent(req, res) {
+export async function getEvent(req, res) {
   const { id } = req.params;
   try {
     // Find the event by id
@@ -83,7 +78,10 @@ export async function sendEvent(req, res) {
     }
     res.send({ event, msg: 'success' });
   } catch (error) {
-    res.status(400).send({ msg: error });
+    if (error.name === 'CastError') {
+      return res.status(400).send({ msg: 'Not Found' });
+    }
+    return res.status(400).send({ error });
   }
 }
 

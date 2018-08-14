@@ -35,13 +35,13 @@ export async function getSpending(req, res) {
   try {
     const event = await eventService.findEvent(id);
     const spending = await spendingService.findSpendingById(spendingId);
-    if (!spending) {
-      return res.status(400).send({ msg: 'Not found.' });
-    }
     const check = spendingService.checkSpending(event, spending);
     if (!check) return res.status(400).send({ msg: 'Not Found.' });
     return res.send({ msg: 'success', spending });
   } catch (error) {
+    if (error.name === 'CastError') {
+      return res.status(400).send({ msg: 'Not Found' });
+    }
     return res.status(400).send({ error });
   }
 }

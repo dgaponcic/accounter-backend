@@ -4,7 +4,6 @@ import * as userService from '../services/user.service';
 // Validate the input for password reset
 export async function validatePasswordReset(req, res, next) {
   // Check if the required fields are not empty
-  console.log('here')
   req.checkBody('password', 'Password is required.').notEmpty();
   req.checkBody('newPassword', 'Introduce new password.').notEmpty();
   const errors = req.validationErrors();

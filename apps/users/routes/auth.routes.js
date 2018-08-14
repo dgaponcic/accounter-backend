@@ -5,13 +5,27 @@ import * as PasswordController from '../controllers/password.controller';
 
 const router = express.Router();
 
-router.post('/', UserController.validateUserCreationInput, UserController.createUser);
+router.post(
+  '/',
+  UserController.validateUserCreationInput,
+  UserController.createUser,
+);
 
-router.get('/confirmation/:token', UserController.confirmRegistration);
+router.get(
+  '/confirmation/:token',
+  UserController.confirmRegistration,
+);
 
-router.post('/login', UserController.validateLoginInput, UserController.login);
+router.post(
+  '/login',
+  UserController.validateLoginInput,
+  UserController.login,
+);
 
-router.get('/resend/:token', UserController.resendConfirmation);
+router.get(
+  '/resend/:token',
+  UserController.resendConfirmation,
+);
 
 router.post(
   '/reset',
