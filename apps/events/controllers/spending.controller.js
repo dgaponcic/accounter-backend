@@ -1,4 +1,5 @@
 import * as eventService from '../services/event.service';
+import * as spendingService from '../services/spending.service';
 
 export async function validateSpendingInput(req, res, next) {
   // Check the input
@@ -26,5 +27,21 @@ export async function createSpending(req, res) {
     return res.send({ msg: 'success' });
   } catch (error) {
     return res.status(400).send(error);
+  }
+}
+
+export async function getSpending(req, res) {
+  const { spendingId, id } = req.params;
+  try {
+    const event = await eventService.findEvent(id);
+    const spending = await spendingService.findSpendingById(spendingId);
+    if (!spending) {
+      return res.status(400).send({ msg: 'Not found.' });
+    }
+    const check = spendingService.checkSpending(event, spending);
+    if (!check) return res.status(400).send({ msg: 'Not Found.' });
+    return res.send({ msg: 'success', spending });
+  } catch (error) {
+    return res.status(400).send({ error });
   }
 }

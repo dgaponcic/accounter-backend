@@ -39,4 +39,18 @@ route.post(
   SpendingController.createSpending,
 );
 
+// route.put(
+//   '/:id/spending',
+//   passport.authenticate('jwt', { session: false }),
+//   EventController.validateUser,
+//   SpendingController.editSpending,
+// )
+
+route.get(
+  '/:id/spending/:spendingId',
+  passport.authenticate('jwt', { session: false }),
+  EventController.validateUser,
+  SpendingController.getSpending,
+)
+
 export default route;

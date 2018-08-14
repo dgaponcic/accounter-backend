@@ -32,13 +32,14 @@ const UserSchema = new Schema({
     resetPasswordExpires: Date
   }
 });
-// TODO: use this format
+/* TODO: use this format
 ```{
   type: "Token Type"
   token: "xx",
   expire_at: ""
 }
 ```;
+*/
 
 // get the bearer token
 UserSchema.methods.getJWT = function() {
@@ -82,12 +83,4 @@ UserSchema.methods.createPassword = async function(password) {
   await this.save();
 };
 
-let User;
-
-try {
-  User = mongoose.model('User');
-} catch (e) {
-  User = mongoose.model('User', UserSchema);
-}
-
-export default User;
+export default mongoose.model('User', UserSchema);

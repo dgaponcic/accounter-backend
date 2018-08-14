@@ -78,6 +78,7 @@ export async function findEventById(id) {
 // Find event by id
 export async function findEvent(id) {
   const event = await Event.findById(id);
+  console.log(event)
   return event;
 }
 

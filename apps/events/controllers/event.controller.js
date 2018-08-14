@@ -4,7 +4,7 @@ export async function validateUser(req, res, next) {
   const { user } = req;
   const { id } = req.params;
   // Find the event by id
-  const event = await eventService.findEventById(id);
+  const event = await eventService.findEvent(id);
   if (!event) {
     return res.status(400).send({ msg: 'Event not found.' });
   }
