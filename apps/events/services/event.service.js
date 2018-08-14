@@ -56,11 +56,10 @@ export async function addNewSpending(event, name, price, author) {
   const spending = new Spending({ name, price, author });
   await spending.save();
   // Default the author pays for the spending
-  spending.addPayers(spending.author);
-  // Add the spending to event
-  event.addSpendings(spending);
-  // Add participants to event
-  spending.addParticipants(event);
+  await spending.addPayers(spending.author);
+  // Add the spending and participants to event
+  await Promise.all([event.addSpendings(spending),
+    spending.addParticipants(event)]);
   return spending;
 }
 

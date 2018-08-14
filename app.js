@@ -11,8 +11,10 @@ import authRouter from './apps/users/routes/auth.routes';
 import eventRouter from './apps/events/routes/events.routes';
 import config from './config/config';
 import passportConfig from './config/passport';
+import googlePassportConfig from './config/google.passport';
 
 passportConfig(passport);
+googlePassportConfig(passport);
 dotenv.config();
 const app = express();
 // Set mongoose.Promise to any Promise implementation

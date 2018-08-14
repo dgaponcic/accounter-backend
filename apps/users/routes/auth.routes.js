@@ -5,27 +5,13 @@ import * as PasswordController from '../controllers/password.controller';
 
 const router = express.Router();
 
-router.post(
-  '/',
-  UserController.validateUserCreationInput,
-  UserController.createUser,
-);
+router.post('/', UserController.validateUserCreationInput, UserController.createUser);
 
-router.get(
-  '/confirmation/:token',
-  UserController.confirmRegistration,
-);
+router.get('/confirmation/:token', UserController.confirmRegistration);
 
-router.post(
-  '/login',
-  UserController.validateLoginInput,
-  UserController.login,
-);
+router.post('/login', UserController.validateLoginInput, UserController.login);
 
-router.get(
-  '/resend/:token',
-  UserController.resendConfirmation,
-);
+router.get('/resend/:token', UserController.resendConfirmation);
 
 router.post(
   '/reset',
@@ -39,16 +25,26 @@ router.post(
   PasswordController.validatePasswordForgot,
   PasswordController.forgotPassword,
 );
-router.get(
-  '/change/:token',
-  PasswordController.checkPassToken,
-);
+router.get('/change/:token', PasswordController.checkPassToken);
 router.post(
   '/change/:token',
   PasswordController.validateResetPassword,
   PasswordController.changePassword,
 );
 
-// module.exports = router;
+router.get(
+  '/google',
+  passport.authenticate('google', { scope: 'https://www.googleapis.com/auth/userinfo.email' }),
+);
 
+router.get(
+  '/google/callback',
+  // passport.authenticate('google', { failureRedirect: '/login' }),
+  (req, res) => {
+    // res.redirect('/');
+    res.send('dgf');
+  },
+);
+
+// module.exports = router;
 export default router;

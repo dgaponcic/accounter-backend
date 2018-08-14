@@ -40,6 +40,8 @@
     "nodemailer": "^4.6.7",
     "nodemon": "^1.18.3",
     "passport": "^0.4.0",
+    "passport-google": "^0.3.0",
+    "passport-google-oauth": "^1.0.0",
     "passport-jwt": "^3.0.0",
     "password-strength": "0.0.1",
     "password-validator": "^4.1.1",
