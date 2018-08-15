@@ -13,7 +13,7 @@ export default function (passport) {
       },
       async (req, accessToken, refreshToken, profile, done) => {
         // const user = User.find({ email: })
-        done(null, user)
+        done(null);
       },
     ),
   );

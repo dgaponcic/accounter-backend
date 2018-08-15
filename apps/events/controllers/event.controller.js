@@ -22,7 +22,9 @@ export function validateEventCreation(req, res, next) {
   req.checkBody('startDate', 'Start date is required.').notEmpty();
   req.checkBody('finishDate', 'Finish date is required.').notEmpty();
   if (req.body.finishDate) {
-    req.checkBody('finishDate', 'Finish date must be after the start date.').isAfter(req.body.startDate);
+    req
+      .checkBody('finishDate', 'Finish date must be after the start date.')
+      .isAfter(req.body.startDate);
   }
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors);
