@@ -35,6 +35,10 @@ export async function createUser(req, res) {
   }
 }
 
+export function send(req, res) {
+  res.send('working')
+}
+
 // Confirm the user
 export async function confirmRegistration(req, res) {
   try {

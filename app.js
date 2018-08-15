@@ -19,7 +19,10 @@ dotenv.config();
 const app = express();
 // Set mongoose.Promise to any Promise implementation
 mongoose.Promise = Promise;
-mongoose.connect(config.get('mongo.main'), { useNewUrlParser: true });
+mongoose.connect(
+  config.get('mongo.main'),
+  { useNewUrlParser: true },
+);
 const port = config.get('port');
 
 app.use(cors());
@@ -31,6 +34,13 @@ app.use(validator);
 // Keep the user in session
 app.use(passport.initialize());
 app.use(passport.session());
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
+
+passport.deserializeUser((user, done) => {
+  done(null, user);
+});
 
 app.use('/users', authRouter);
 app.use('/events', eventRouter);

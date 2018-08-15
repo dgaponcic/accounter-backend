@@ -11,21 +11,11 @@ router.post(
   UserController.createUser,
 );
 
-router.get(
-  '/confirmation/:token',
-  UserController.confirmRegistration,
-);
+router.get('/confirmation/:token', UserController.confirmRegistration);
 
-router.post(
-  '/login',
-  UserController.validateLoginInput,
-  UserController.login,
-);
+router.post('/login', UserController.validateLoginInput, UserController.login);
 
-router.get(
-  '/resend/:token',
-  UserController.resendConfirmation,
-);
+router.get('/resend/:token', UserController.resendConfirmation);
 
 router.post(
   '/reset',
@@ -48,17 +38,15 @@ router.post(
 
 router.get(
   '/google',
-  passport.authenticate('google', { scope: 'https://www.googleapis.com/auth/userinfo.email' }),
+  passport.authenticate('google', {
+    scope: ['profile'],
+  }),
 );
 
 router.get(
   '/google/callback',
-  // passport.authenticate('google', { failureRedirect: '/login' }),
-  (req, res) => {
-    // res.redirect('/');
-    res.send('dgf');
-  },
+  passport.authenticate('google'),
+  UserController.send,
 );
 
-// module.exports = router;
 export default router;

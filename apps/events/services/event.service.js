@@ -4,7 +4,7 @@ import Spending from '../models/spending.model';
 // Generate the invitation token
 export async function createEventToken(event) {
   await event.createEventToken();
-  return event.invitationToken;
+  return event.token.invitationToken;
 }
 
 export async function createNewEvent(name, startAt, finishAt, user) {
