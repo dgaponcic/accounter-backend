@@ -44,6 +44,13 @@ route.post(
 // )
 
 route.get(
+  '/:id/spendings',
+  passport.authenticate('jwt', { session: false }),
+  catchAsyncErrors(EventController.validateUser),
+  SpendingController.getSpendings,
+);
+
+route.get(
   '/:id/spending/:spendingId',
   passport.authenticate('jwt', { session: false }),
   catchAsyncErrors(EventController.validateUser),

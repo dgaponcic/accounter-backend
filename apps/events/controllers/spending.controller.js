@@ -9,7 +9,9 @@ export async function validateSpendingInput(req, res, next) {
   }
   req.checkBody('name', 'Too long name.').isLength({ max: 30 });
   req.checkBody('price', 'Price is required.').notEmpty();
-  if (req.body.price) req.checkBody('price', 'Price is not a number.').isDecimal();
+  if (req.body.price) {
+    req.checkBody('price', 'Price is not a number.').isDecimal();
+  }
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors);
   next();
@@ -24,7 +26,7 @@ export async function createSpending(req, res) {
     if (!event) return res.status(404).send({ msg: 'Not Found.' });
     // Add new spending to event
     await eventService.addNewSpending(event, name, price, req.user);
-    return res.send({ msg: 'success' });
+    return res.status(201).send({ msg: 'success' });
   } catch (error) {
     return res.status(400).send(error);
   }
@@ -33,11 +35,32 @@ export async function createSpending(req, res) {
 export async function getSpending(req, res) {
   const { spendingId, id } = req.params;
   try {
+    // Find event by id
     const event = await eventService.findEvent(id);
-    const spending = await spendingService.findSpendingById(spendingId);
+    // Find spending by id
+    const spending = await spendingService.findSpendingByIdAndPopulate(
+      spendingId,
+    );
+    // Check if the spending belongs to event
     const check = spendingService.checkSpending(event, spending);
     if (!check) return res.status(400).send({ msg: 'Not Found.' });
     return res.send({ msg: 'success', spending });
+  } catch (error) {
+    if (error.name === 'CastError') {
+      return res.status(400).send({ msg: 'Not Found' });
+    }
+    return res.status(400).send({ error });
+  }
+}
+
+export async function getSpendings(req, res) {
+  const { id } = req.params;
+  try {
+    // Find event by id
+    const event = await eventService.findEvent(id);
+    // Find all spendings of that event
+    const spendings = await spendingService.getSpendings(event);
+    return res.send({ msg: 'success', spendings });
   } catch (error) {
     if (error.name === 'CastError') {
       return res.status(400).send({ msg: 'Not Found' });

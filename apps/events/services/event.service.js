@@ -82,6 +82,6 @@ export async function findEvent(id) {
 
 // Return all user's events
 export async function allEvents(events) {
-  const eventsList = await Event.find({ _id: { $in: events } }).select({ name: 1, _id: 1 }).exec();
+  const eventsList = await Event.find({ _id: { $in: events } }, { name: 1, _id: 1 });
   return eventsList;
 }
