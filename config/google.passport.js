@@ -1,4 +1,4 @@
-import User from '../apps/users/models/user.model';
+// import User from '../apps/users/models/user.model';
 
 const GoogleStrategy = require('passport-google-oauth20');
 

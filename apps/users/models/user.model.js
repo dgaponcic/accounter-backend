@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import argon2 from 'argon2';
+import * as cryptoService from '../services/crypto.service';
 
 const { Schema } = mongoose;
 
@@ -25,12 +26,11 @@ const UserSchema = new Schema({
   isConfirmed: { type: Boolean, default: false },
   isActive: { type: Boolean, default: true },
   events: [{ type: mongoose.Schema.ObjectId, ref: 'Event' }],
-  tokens: {
-    registrationToken: String,
-    registrationExpires: Date,
-    resetPasswordToken: String,
-    resetPasswordExpires: Date,
-  },
+  tokens: [{
+    tokenType: String,
+    token: String,
+    expiresAt: Date,
+  }],
 });
 /* TODO: use this format
 ```{
@@ -46,7 +46,7 @@ UserSchema.methods.getJWT = function () {
   const expirationTime = parseInt(100000); // TODO: get me from settings
   return `Bearer ${jwt.sign(
     { user_id: this._id },
-    'secret_key', // TODO: Get me from config
+    process.env.tokenJWTSecret,
     {
       expiresIn: expirationTime,
     },
@@ -61,10 +61,13 @@ UserSchema.methods.addEvent = async function (event) {
 
 // generate the registration token
 UserSchema.methods.addRegistrationToken = async function () {
-  const buff = await crypto.randomBytes(30);
-  this.tokens.registrationToken = buff.toString('hex');
+  // const buff = await crypto.randomBytes(30);
+  // this.tokens.registrationToken = buff.toString('hex');
   // The token is valid 1 hour
-  this.tokens.registrationExpires = Date.now() + 3600000;
+  console.log('model');
+  const token = await cryptoService.generateToken();
+  this.tokens({ type: 'registration', token, expiresAt: Date.now() + 3600000 });
+  // this.tokens.registrationExpires = Date.now() + 3600000;
   await this.save();
 };
 

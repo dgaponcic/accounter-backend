@@ -36,7 +36,7 @@ export async function createUser(req, res) {
 }
 
 export function send(req, res) {
-  res.send('working')
+  res.send('working');
 }
 
 // Confirm the user
