@@ -55,9 +55,10 @@ export async function forgotPassword(req, res) {
 }
 
 export async function checkPassToken(req, res) {
+  const { token } = req.params;
   try {
     // Check if the registration token is valid
-    const user = await userService.checkPasswordToken(req.params.token);
+    const user = await userService.findByToken(token, 'passwordToken');
     if (user) return res.send({ msg: 'success' });
     return res.status(400).send({ msg: 'Invalid or expired.' });
   } catch (error) {

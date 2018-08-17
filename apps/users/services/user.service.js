@@ -8,16 +8,31 @@ export async function createUser(username, email, rawPassword) {
   // hash the password
   await user.createPassword(rawPassword);
   // generate registration token
-  await user.addRegistrationToken();
+  await user.addToken('registrationToken');
   return user.save();
+}
+
+export async function findToken(user, type) {
+  // Filter tokens by their type and expiration date
+  const tokens = await user.tokens.filter(tokenObject => tokenObject.type === type
+    && tokenObject.expiresAt >= Date.now());
+  if (!tokens) return null;
+  // return the token with max expiration date
+  const maxValue = tokens.reduce((prev, current) => {
+    return (prev.expiresAt > current.expiresAt) ? prev : current;
+  });
+  return maxValue.token;
 }
 
 export async function registerUser(username, email, rawPassword) {
   // Create new user
   const user = await createUser(username, email, rawPassword);
-  const url = `${process.env.registerURL}${user.tokens.registrationToken}`;
-  // Send registration confirmation mail
-  mailService.sendConfirmationEmail(url, user.email);
+  const token = await findToken(user, 'registrationToken');
+  if (token) {
+    const url = `${process.env.registerURL}${token}`;
+    // Send registration confirmation mail
+    mailService.sendConfirmationEmail(url, user.email);
+  }
 }
 
 // Find the user by username
@@ -40,10 +55,22 @@ export async function resetPassword(user, rawPassword) {
 }
 
 // Find by token and check if token is valid
-export async function findByRegistrationToken(token) {
+export async function findByToken(token, type) {
   const user = await User.findOne({
-    'tokens.registrationToken': token,
-    'tokens.registrationExpires': { $gt: Date.now() },
+    tokens: {
+      $elemMatch: {
+        type,
+        token,
+        expiresAt: { $gt: Date.now() },
+      },
+    },
+  });
+  return user;
+}
+
+export async function findByExpiredToken(token, type) {
+  const user = await User.findOne({
+    tokens: { $elemMatch: { type, token } },
   });
   return user;
 }
@@ -70,24 +97,17 @@ export async function checkUser(user) {
 
 export async function forgotPassword(user) {
   // generate password token
-  await user.createPasswordToken();
-  const url = `${process.env.passwordResetURL}${user.tokens.resetPasswordToken}`;
+  await user.addToken('passwordToken');
+  const token = await findToken(user, 'passwordToken');
+  const url = `${process.env.passwordResetURL}${token}`;
   // Send password confirmation mail
   mailService.forgotPasswordEmail(url, user.email);
 }
 
 // Resend confirmation mail if the token expired
 export async function resendEmail(user) {
-  await user.addRegistrationToken();
-  const url = `${process.env.registerURL}${user.tokens.registrationToken}`;
+  await user.addToken('registrationToken');
+  const token = findToken(user, 'registrationToken');
+  const url = `${process.env.registerURL}${token}`;
   mailService.sendConfirmationEmail(url, user.email);
-}
-
-// Check if password token is valid
-export async function checkPasswordToken(resetPasswordToken) {
-  const user = await User.findOne({
-    'tokens.resetPasswordToken': resetPasswordToken,
-    'tokens.resetPasswordExpires': { $gt: Date.now() },
-  });
-  return user;
 }

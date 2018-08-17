@@ -26,12 +26,19 @@ const UserSchema = new Schema({
   isConfirmed: { type: Boolean, default: false },
   isActive: { type: Boolean, default: true },
   events: [{ type: mongoose.Schema.ObjectId, ref: 'Event' }],
-  tokens: {
-    registrationToken: String,
-    registrationExpires: Date,
-    resetPasswordToken: String,
-    resetPasswordExpires: Date,
-  },
+  // tokens: {
+
+  //   registrationToken: String,
+  //   registrationExpires: Date,
+  //   resetPasswordToken: String,
+  //   resetPasswordExpires: Date,
+  // },
+
+  tokens: [{
+    type: { type: String },
+    token: { type: String },
+    expiresAt: { type: Date },
+  }],
 });
 /* TODO: use this format
 ```{
@@ -60,23 +67,25 @@ UserSchema.methods.addEvent = async function (event) {
   await this.save();
 };
 
-// generate the registration token
-UserSchema.methods.addRegistrationToken = async function () {
+UserSchema.methods.addToken = async function (type) {
+  // Generate the registration token
   const buff = await crypto.randomBytes(30);
-  this.tokens.registrationToken = buff.toString('hex');
+  const token = buff.toString('hex');
   // The token is valid 1 hour
-  this.tokens.registrationExpires = Date.now() + 3600000;
+  const expiresAt = Date.now() + 3600000;
+  this.tokens.push({ type, token, expiresAt });
   await this.save();
 };
 
 // generate password reset token
-UserSchema.methods.createPasswordToken = async function () {
-  const buff = await crypto.randomBytes(30);
-  this.tokens.resetPasswordToken = buff.toString('hex');
-  // The token is valid 1 hour
-  this.tokens.resetPasswordExpires = Date.now() + 3600000;
-  await this.save();
-};
+// UserSchema.methods.createPasswordToken = async function () {
+//   const buff = await crypto.randomBytes(30);
+//   const token = buff.toString('hex');
+//   // The token is valid 1 hour
+//   const expiresAt = Date.now() + 3600000;
+//   this.tokens.push({ type: 'passwordToken', token, expiresAt });
+//   await this.save();
+// };
 
 // hash the password using argon2
 UserSchema.methods.createPassword = async function (password) {

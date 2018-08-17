@@ -1,7 +1,6 @@
 import dotenv from 'dotenv';
 import validator from 'email-validator';
 import passValidator from '../../../config/password';
-import User from '../models/user.model';
 import * as userService from '../services/user.service';
 
 dotenv.config();
@@ -41,13 +40,11 @@ export function send(req, res) {
 
 // Confirm the user
 export async function confirmRegistration(req, res) {
+  const { token } = req.params;
   try {
     // Find the user by registration Token
-    const user = await userService.findByRegistrationToken(req.params.token);
+    const user = await userService.findByToken(token, 'registrationToken');
     if (!user) return res.status(400).send({ msg: 'Invalid or expired.' });
-    // Set the token fields to undefined
-    user.registrationToken = undefined;
-    user.registrationExpires = undefined;
     // Confirm the user
     user.isConfirmed = true;
     user.save();
@@ -90,9 +87,10 @@ export async function login(req, res) {
 
 // Resend registration confirmation if token expired
 export async function resendConfirmation(req, res) {
+  const { token } = req.params;
   try {
     // Find user by expired token
-    const user = await User.findOne({ registrationToken: req.params.token });
+    const user = await userService.findByExpiredToken(token, 'registrationToken');
     if (!user) return res.status(404).send({ msg: 'Not found.' });
     // Resend confirmation email
     await userService.resendEmail(user);

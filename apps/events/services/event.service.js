@@ -66,8 +66,8 @@ export async function findEventById(id) {
   try {
     // Populate the fields
     return await Event.findById(id)
-      .populate('author', 'username')
-      .populate('participants', 'username')
+      // .populate('author', 'username')
+      .populate('participants.participant', 'username')
       .populate('spendings');
   } catch (error) {
     return undefined;

@@ -9,5 +9,7 @@ module.exports = {
         "no-tabs": 0,
         "indent": 0,
         "object-curly-newline": 0,
+        "array-callback-return": 0,
+        "arrow-body-style": 0
     }
 };

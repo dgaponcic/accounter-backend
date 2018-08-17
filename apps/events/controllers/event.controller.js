@@ -19,12 +19,11 @@ export async function validateUser(req, res, next) {
 export function validateEventCreation(req, res, next) {
   // Check if the required fields are not empty
   req.checkBody('name', 'Name is required.').notEmpty();
-  req.checkBody('startDate', 'Start date is required.').notEmpty();
-  req.checkBody('finishDate', 'Finish date is required.').notEmpty();
-  if (req.body.finishDate) {
-    req
-      .checkBody('finishDate', 'Finish date must be after the start date.')
-      .isAfter(req.body.startDate);
+  req.checkBody('startAt', 'Start date is required.').notEmpty();
+  req.checkBody('finishAt', 'Finish date is required.').notEmpty();
+  if (req.body.finishAt) {
+    req.checkBody('finishAt', 'Finish date must be after the start date.')
+      .isAfter(req.body.startAt);
   }
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors);
