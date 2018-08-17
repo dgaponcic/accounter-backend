@@ -1,5 +1,4 @@
 import crypto from 'crypto';
-import argon2 from 'argon2';
 
 // Generate token
 export async function generateTokens() {
@@ -17,9 +16,4 @@ export async function generateTokensObjects(type) {
     token,
     expiresAt,
 	};
-}
-
-export async function hashPassword(password) {
-	const hashedPassword = await argon2.hash(password);
-	return hashedPassword;
 }

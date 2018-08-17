@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import validator from 'email-validator';
 import passValidator from '../../../config/password';
 import * as userService from '../services/user.service';
+import * as passwordService from '../services/password.service';
 
 dotenv.config();
 
@@ -74,7 +75,7 @@ export async function login(req, res) {
     const check = await userService.checkUser(user);
     if (check.value) {
       // Check if the input matches user's password
-      const match = await userService.checkPassword(user.password, password);
+      const match = await passwordService.checkPassword(user.password, password);
       if (match) return res.status(200).send({ token: user.getJWT() });
       return res.status(400).send({ msg });
     }

@@ -29,7 +29,7 @@ router.post(
   PasswordController.validatePasswordForgot,
   PasswordController.forgotPassword,
 );
-router.get('/change/:token', PasswordController.checkPassToken);
+router.get('/change/:token', PasswordController.checkPasswordToken);
 router.post(
   '/change/:token',
   PasswordController.validateResetPassword,

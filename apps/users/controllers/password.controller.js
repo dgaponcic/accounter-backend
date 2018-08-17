@@ -1,5 +1,6 @@
 import passValidator from '../../../config/password';
 import * as userService from '../services/user.service';
+import * as passwordService from '../services/password.service';
 
 // Validate the input for password reset
 export async function validatePasswordReset(req, res, next) {
@@ -20,7 +21,7 @@ export async function resetPassword(req, res) {
   const { password, newPassword } = req.body;
   try {
     // Check if user's password matches the input
-    const match = await userService.checkPassword(user.password, password);
+    const match = await passwordService.checkPassword(user.password, password);
     // If matches reset password
     if (match) {
       await userService.resetPassword(user, newPassword);
@@ -54,7 +55,7 @@ export async function forgotPassword(req, res) {
   }
 }
 
-export async function checkPassToken(req, res) {
+export async function checkPasswordToken(req, res) {
   const { token } = req.params;
   try {
     // Check if the registration token is valid
@@ -77,15 +78,15 @@ export function validateResetPassword(req, res, next) {
 }
 
 export async function changePassword(req, res) {
+  const { token } = req.params;
+  const { newPassword } = req.body;
   try {
     // Check if the password reset token is valid
-    const user = await userService.checkPasswordToken(req.params.token);
+    const user = await userService.findByToken(token, 'passwordToken');
     if (!user) return res.status(400).send({ msg: 'Invalid or expired.' });
     // Call the reset password service
-    await userService.resetPassword(user, req.body.newPassword);
+    await passwordService.resetPassword(user, newPassword);
     // Set password token fields to undefined
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpires = undefined;
     user.save();
     return res.status(200).send({ status: 200, msg: 'success' });
   } catch (error) {

@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
 import * as cryptoService from '../../../common/crypto.service';
+import * as passwordService from '../services/password.service';
 
 const { Schema } = mongoose;
 
@@ -24,14 +25,6 @@ const UserSchema = new Schema({
   isConfirmed: { type: Boolean, default: false },
   isActive: { type: Boolean, default: true },
   events: [{ type: mongoose.Schema.ObjectId, ref: 'Event' }],
-  // tokens: {
-
-  //   registrationToken: String,
-  //   registrationExpires: Date,
-  //   resetPasswordToken: String,
-  //   resetPasswordExpires: Date,
-  // },
-
   tokens: [{
     type: { type: String },
     token: { type: String },
@@ -66,7 +59,7 @@ UserSchema.methods.addToken = async function (type) {
 
 // hash the password using argon2
 UserSchema.methods.createPassword = async function (password) {
-  this.password = await cryptoService.hashPassword(password);
+  this.password = await passwordService.hashPassword(password);
   await this.save();
 };
 

@@ -1,4 +1,3 @@
-import argon2 from 'argon2';
 import * as mailService from './mailer.service';
 import User from '../models/user.model';
 
@@ -41,17 +40,6 @@ export async function findUser(input) {
     $or: [{ email: input }, { username: input }],
   });
   return user;
-}
-
-// Check if user's password matches the input
-export async function checkPassword(userPass, inputPass) {
-  const match = await argon2.verify(userPass, inputPass);
-  return match;
-}
-
-// hash the password
-export async function resetPassword(user, rawPassword) {
-  user.createPassword(rawPassword);
 }
 
 // Find by token and check if token is valid
