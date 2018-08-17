@@ -9,8 +9,10 @@ const EventSchema = Schema({
   createdAt: { type: Date, default: Date.now },
   startAt: { type: Date, required: true },
   finishAt: { type: Date, required: true },
-  author: { type: mongoose.Schema.ObjectId, ref: 'User' },
-  participants: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
+  participants: [{
+    typeOfParticipant: { type: String },
+    participant: { type: mongoose.Schema.ObjectId, ref: 'User' },
+  }],
   spendings: [{ type: mongoose.Schema.ObjectId, ref: 'Spending' }],
   token: {
     invitationToken: String,
@@ -27,8 +29,8 @@ EventSchema.methods.createEventToken = async function () {
 };
 
 // Add participants to the event
-EventSchema.methods.addParticipants = async function (user) {
-  this.participants.push(user);
+EventSchema.methods.addParticipants = async function (type, user) {
+  this.participants.push({ typeOfParticipant: type, participant: user });
   await this.save();
 };
 

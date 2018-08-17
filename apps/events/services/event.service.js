@@ -13,10 +13,10 @@ export async function createNewEvent(name, startAt, finishAt, user) {
     name,
     startAt,
     finishAt,
-    author: user,
+    // author: user,
   });
   // Add the author of the event to the participants
-  await event.addParticipants(user);
+  await event.addParticipants('author', user);
   // Add the event to the user
   await user.addEvent(event);
   await event.save();
@@ -34,7 +34,7 @@ export async function findEventByToken(invitationToken) {
 
 // Check if the user participate to the event
 export async function validateUser(event, user) {
-  const participantsIDs = event.participants.map(x => String(x._id));
+  const participantsIDs = event.participants.map(x => String(x.participant._id));
   const isParticipant = participantsIDs.includes(String(user._id));
   return isParticipant;
 }
@@ -44,21 +44,21 @@ export async function addPeople(event, user) {
   const isParticipant = await validateUser(event, user);
   if (!isParticipant) {
     // If not, add him to the event
-    await event.addParticipants(user);
+    await event.addParticipants('participant', user);
     // Add the event to user
     await user.addEvent(event);
   }
 }
 
-export async function addNewSpending(event, name, price, author) {
+export async function addNewSpending(event, name, price, user, payers, consumers) {
   // Create new instance of Spending
-  const spending = new Spending({ name, price, author });
+  const spending = new Spending({ name, price });
   await spending.save();
-  // Default the author pays for the spending
-  await spending.addPayers(spending.author);
+  // Default the author user pays for the spending
+  if (payers) payers.map(payer => spending.addParticipant('payer', payer));
+  if (consumers) consumers.map(consumer => spending.addParticipant('consumer', consumer));
   // Add the spending and participants to event
-  await Promise.all([event.addSpendings(spending),
-    spending.addParticipants(event)]);
+  await event.addSpendings(spending);
   return spending;
 }
 

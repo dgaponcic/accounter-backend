@@ -32,11 +32,11 @@ export function validateEventCreation(req, res, next) {
 }
 
 export async function createEvent(req, res) {
-  const { name, startDate, finishDate } = req.body;
+  const { name, startAt, finishAt } = req.body;
   const { user } = req;
   try {
     // Create a new event
-    const eventToken = await eventService.createNewEvent(name, startDate, finishDate, user);
+    const eventToken = await eventService.createNewEvent(name, startAt, finishAt, user);
     return res.status(201).send({ msg: 'success', eventToken });
   } catch (error) {
     return res.status(400).send({ msg: error });

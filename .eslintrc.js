@@ -8,5 +8,6 @@ module.exports = {
         "func-names": 0,
         "no-tabs": 0,
         "indent": 0,
+        "object-curly-newline": 0,
     }
 };

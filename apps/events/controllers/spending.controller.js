@@ -18,14 +18,21 @@ export async function validateSpendingInput(req, res, next) {
 }
 
 export async function createSpending(req, res) {
-  const { name, price } = req.body;
+  const { name, price, payers, consumers } = req.body;
   const { id } = req.params;
   try {
     // Find event by id
     const event = await eventService.findEvent(id);
     if (!event) return res.status(404).send({ msg: 'Not Found.' });
     // Add new spending to event
-    await eventService.addNewSpending(event, name, price, req.user);
+    await eventService.addNewSpending(
+      event,
+      name,
+      price,
+      req.user,
+      payers,
+      consumers,
+    );
     return res.status(201).send({ msg: 'success' });
   } catch (error) {
     return res.status(400).send(error);
