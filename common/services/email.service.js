@@ -1,19 +1,22 @@
-const nodemailer = require('nodemailer'); //TODO: Please import me
+import nodemailer from 'nodemailer';
 
-// Configurate mail transporter
-const transporter = nodemailer.createTransport({
-  host: 'localhost', // TODO: Use config service
-  port: 1025 // TODO: Use config service
-});
+function configurateMail() {
+  const { host, mailPort } = process.env;
+  // Configurate mail transporter
+  const transporter = nodemailer.createTransport({
+    host,
+    port: mailPort,
+  });
+  return transporter;
+}
 
 // Send email
-async function sendMail(email, subject, msg) {
+export async function sendMail(email, subject, msg) {
+  const transporter = configurateMail();
   return transporter.sendMail({
     from: 'support@accounter.com',
     to: email,
     subject,
-    html: msg
+    html: msg,
   });
 }
-
-module.exports.sendMail = sendMail;

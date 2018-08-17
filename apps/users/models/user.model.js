@@ -1,8 +1,6 @@
 import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
-import argon2 from 'argon2';
-// import * as cryptoService from '../services/crypto.service';
+import * as cryptoService from '../../../common/crypto.service';
 
 const { Schema } = mongoose;
 
@@ -40,14 +38,6 @@ const UserSchema = new Schema({
     expiresAt: { type: Date },
   }],
 });
-/* TODO: use this format
-```{
-  type: "Token Type"
-  token: "xx",
-  expire_at: ""
-}
-```;
-*/
 
 // get the bearer token
 UserSchema.methods.getJWT = function () {
@@ -69,27 +59,14 @@ UserSchema.methods.addEvent = async function (event) {
 
 UserSchema.methods.addToken = async function (type) {
   // Generate the registration token
-  const buff = await crypto.randomBytes(30);
-  const token = buff.toString('hex');
-  // The token is valid 1 hour
-  const expiresAt = Date.now() + 3600000;
-  this.tokens.push({ type, token, expiresAt });
+  const token = await cryptoService.generateTokensObjects(type);
+  this.tokens.push(token);
   await this.save();
 };
 
-// generate password reset token
-// UserSchema.methods.createPasswordToken = async function () {
-//   const buff = await crypto.randomBytes(30);
-//   const token = buff.toString('hex');
-//   // The token is valid 1 hour
-//   const expiresAt = Date.now() + 3600000;
-//   this.tokens.push({ type: 'passwordToken', token, expiresAt });
-//   await this.save();
-// };
-
 // hash the password using argon2
 UserSchema.methods.createPassword = async function (password) {
-  this.password = await argon2.hash(password);
+  this.password = await cryptoService.hashPassword(password);
   await this.save();
 };
 

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import crypto from 'crypto';
+import * as cryptoService from '../../../common/crypto.service';
 
 const { Schema } = mongoose;
 
@@ -22,8 +22,8 @@ const EventSchema = Schema({
 
 // Create the invitation token
 EventSchema.methods.createEventToken = async function () {
-  const buff = await crypto.randomBytes(30);
-  this.token.invitationToken = buff.toString('hex');
+  const token = await cryptoService.generateTokens();
+  this.token.invitationToken = token;
   this.token.invitationExpires = this.finishAt;
   await this.save();
 };
