@@ -11,6 +11,7 @@ module.exports = {
         "object-curly-newline": 0,
         "array-callback-return": 0,
         "arrow-body-style": 0,
-        "import/prefer-default-export": 0
+        "import/prefer-default-export": 0,
+        "no-return-await": 0
     }
 };

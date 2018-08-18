@@ -29,7 +29,6 @@ export async function createSpending(req, res) {
       event,
       name,
       price,
-      req.user,
       payers,
       consumers,
     );

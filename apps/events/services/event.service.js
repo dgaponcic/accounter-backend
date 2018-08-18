@@ -50,15 +50,37 @@ export async function addPeople(event, user) {
   }
 }
 
-export async function addNewSpending(event, name, price, user, payers, consumers) {
+// Check if the user is event participant
+function isEventParticipant(event, userId) {
+  const participantsIDs = event.participants.map(x => String(x.participant._id));
+  const isParticipant = participantsIDs.includes(String(userId));
+  return isParticipant;
+}
+
+// Filter the participants
+function filterParticipants(event, participants) {
+  // Participants must be unique and participate to event
+  const filteredParticipants = [...new Set(participants
+    .filter(participant => isEventParticipant(event, participant)))];
+    return filteredParticipants;
+}
+
+// Add participants to the spending
+function addParticipants(participants, type, spending) {
+  participants.map(participant => spending.addParticipant(type, participant))
+}
+
+export async function addNewSpending(event, name, price, payers, consumers) {
   // Create new instance of Spending
   const spending = new Spending({ name, price });
-  await spending.save();
-  // Default the author user pays for the spending
-  if (payers) payers.map(payer => spending.addParticipant('payer', payer));
-  if (consumers) consumers.map(consumer => spending.addParticipant('consumer', consumer));
+  // Filter payers and consumers
+  const filteredPayers = filterParticipants(event, payers);
+  const filteredConsumers = filterParticipants(event, consumers);
+  // Add participants to spending
+  if (filteredPayers) addParticipants(filteredPayers, 'payer', spending);
+  if (filteredConsumers) addParticipants(filteredConsumers, 'consumer', spending);
   // Add the spending and participants to event
-  await event.addSpendings(spending);
+  await Promise.all([spending.save(), event.addSpendings(spending)]);
   return spending;
 }
 

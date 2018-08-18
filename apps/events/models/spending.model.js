@@ -14,9 +14,8 @@ const SpendingSchema = Schema({
 });
 
 // Add payers or consumers
-SpendingSchema.methods.addParticipant = async function (type, user) {
+SpendingSchema.methods.addParticipant = function (type, user) {
   this.participants.push({ type, participant: user });
-  await this.save();
 };
 
 export default mongoose.model('Spending', SpendingSchema);
