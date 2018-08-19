@@ -1,4 +1,5 @@
 import * as eventService from '../services/event.service';
+import * as debtsService from '../services/debts.service';
 
 export async function validateUser(req, res, next) {
   const { user } = req;
@@ -78,13 +79,27 @@ export async function getEvent(req, res) {
     // Find the event by id
     const event = await eventService.findEventById(id);
     if (!event) {
-      return res.status(400).send({ msg: 'Event not found.' });
+      return res.status(404).send({ msg: 'Event not found.' });
     }
     res.send({ event, msg: 'success' });
   } catch (error) {
     if (error.name === 'CastError') {
       return res.status(400).send({ msg: 'Not Found' });
     }
+    return res.status(400).send({ error });
+  }
+}
+
+export async function calculateDebts(req, res) {
+  const { id } = req.params;
+  try {
+    const event = await eventService.findEventById(id);
+    if (!event) {
+      return res.status(404).send({ msg: 'Event not found.' });
+    }
+    const results = await debtsService.calculateDebts(event);
+    return res.send({ msg: 'success', results });
+  } catch (error) {
     return res.status(400).send({ error });
   }
 }

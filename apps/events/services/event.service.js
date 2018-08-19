@@ -67,7 +67,7 @@ function filterParticipants(event, participants) {
 
 // Add participants to the spending
 function addParticipants(participants, type, spending) {
-  participants.map(participant => spending.addParticipant(type, participant))
+  participants.map(participant => spending.addParticipant(type, participant));
 }
 
 export async function addNewSpending(event, name, price, payers, consumers) {
@@ -88,8 +88,11 @@ export async function findEventById(id) {
   try {
     // Populate the fields
     return await Event.findById(id)
-      // .populate('author', 'username')
-      .populate('participants.participant', 'username')
+      .populate({
+        path: 'participants.participant',
+        select: 'username',
+        model: 'User',
+      })
       .populate('spendings');
   } catch (error) {
     return undefined;

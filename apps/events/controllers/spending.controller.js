@@ -12,6 +12,8 @@ export async function validateSpendingInput(req, res, next) {
   if (req.body.price) {
     req.checkBody('price', 'Price is not a number.').isDecimal();
   }
+  req.checkBody('payers', 'Introduce the payers.').notEmpty();
+  req.checkBody('consumers', 'Introduce the consumers.').notEmpty();
   const errors = req.validationErrors();
   if (errors) return res.status(400).send(errors);
   next();

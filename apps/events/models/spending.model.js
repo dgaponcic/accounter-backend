@@ -9,6 +9,7 @@ const SpendingSchema = Schema({
   participants: [{
     type: { type: String },
     participant: { type: mongoose.Schema.ObjectId, ref: 'User' },
+    amount: { type: Number },
   }],
   price: { type: Number, required: true },
 });

@@ -57,4 +57,11 @@ route.get(
   SpendingController.getSpending,
 );
 
+route.get(
+  '/:id/debts',
+  passport.authenticate('jwt', { session: false }),
+  catchAsyncErrors(EventController.validateUser),
+  EventController.calculateDebts,
+);
+
 export default route;

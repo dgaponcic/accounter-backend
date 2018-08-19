@@ -7,9 +7,11 @@ export async function findSpendingById(id) {
 
 export async function findSpendingByIdAndPopulate(id) {
   const spending = await Spending.findById(id)
-    .populate('author', 'username')
-    .populate('participants', 'username')
-    .populate('payers', 'username');
+  .populate({
+    path: 'participants.participant',
+    select: 'username',
+    model: 'User',
+  });
   return spending;
 }
 
