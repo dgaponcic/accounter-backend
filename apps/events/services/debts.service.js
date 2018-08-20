@@ -11,8 +11,9 @@ function countDebts(spending, debts) {
   const payers = count(spending, 'payer');
   const consumers = count(spending, 'consumer');
   const { price } = spending;
-  const payerAmount = price / payers;
-  const consumerAmount = price / consumers;
+  const payerAmount = Math.round(price / payers);
+	const consumerAmount = Math.round(price / consumers);
+	let lastKey;
   spending.participants.forEach((participant) => {
     const { username } = participant.participant;
     if (participant.type === 'payer') {
@@ -20,8 +21,13 @@ function countDebts(spending, debts) {
     }
     if (participant.type === 'consumer') {
       debts[username] -= consumerAmount;
-    }
-  });
+		}
+		lastKey = username;
+	});
+	var sum = Object.values(debts).reduce((total, value) => {
+		return total + value;
+	});
+	debts[lastKey] -= sum;
   return debts;
 }
 
@@ -41,8 +47,8 @@ function combineMaxAndMinValues(debts, results) {
 	const value = sortedDebts[0][1] + sortedDebts[length - 1][1];
 	if (value > 0) {
 		results.push({
-			owes: sortedDebts[0][0],
-			isOwed: sortedDebts[length - 1][0],
+			from: sortedDebts[0][0],
+			to: sortedDebts[length - 1][0],
 			amount: Math.abs(sortedDebts[0][1]),
 			});
 			sortedDebts[length - 1][1] += sortedDebts[0][1];
@@ -50,18 +56,18 @@ function combineMaxAndMinValues(debts, results) {
 	}
 	if (value < 0) {
 		results.push({
-			owes: sortedDebts[0][0],
-			isOwed: sortedDebts[length - 1][0],
+			from: sortedDebts[0][0],
+			to: sortedDebts[length - 1][0],
 			amount: Math.abs(sortedDebts[length - 1][1]),
 			});
 			sortedDebts[0][1] += sortedDebts[length - 1][1];
 			sortedDebts[length - 1][1] = 0;
 	}
-	const orderedList = {};
+	const sortedDebtsObject = {};
   for (let i = 0; i < sortedDebts.length; i += 1) {
-    orderedList[sortedDebts[i][0]] = sortedDebts[i][1];
+    sortedDebtsObject[sortedDebts[i][0]] = sortedDebts[i][1];
 	}
-	return algorithm(orderedList, results);
+	return algorithm(sortedDebtsObject, results);
 }
 
 function findComplementaryValues(debts, results) {
@@ -69,7 +75,7 @@ function findComplementaryValues(debts, results) {
 	Object.keys(debts).forEach((key1) => {
 		Object.keys(debts).forEach((key2) => {
 			if (debts[key1] + debts[key2] === 0 && debts[key1] !== 0) {
-				results.push({ owes: key1, isOwed: key2, amount: Math.abs(debts[key1]) });
+				results.push({ from: key1, to: key2, amount: Math.abs(debts[key1]) });
 				debts[key1] = 0;
 				debts[key2] = 0;
 				isComplemetary = true;
@@ -122,7 +128,6 @@ export async function calculateDebts(event) {
 	totalDebts = await Promise.all(totalDebts);
 	totalDebts = totalDebts[totalDebts.length - 1];
 	let results = [];
-	let object = {p1: 100, p2: -100};
 	const result = algorithm(totalDebts, results, 0);
 	results = result.results;
 	return results;
