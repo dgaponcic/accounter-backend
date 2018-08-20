@@ -97,7 +97,7 @@ export async function getDebts(req, res) {
     if (!event) {
       return res.status(404).send({ msg: 'Event not found.' });
     }
-    if(event.debts) return res.send({ msg: 'success', debts: event.debts });
+    if (event.debts) return res.send({ msg: 'success', debts: event.debts });
     return res.send({ msg: 'No debts to show.' });
   } catch (error) {
     return res.status(400).send({ error });
@@ -106,8 +106,9 @@ export async function getDebts(req, res) {
 
 export async function validatePayment(req, res, next) {
   req.checkBody('amount', 'Amount is required.').notEmpty();
-  if(req.body.amount)
+  if (req.body.amount) {
     req.checkBody('amount', 'Amount must be a number.').isDecimal();
+  }
   req.checkBody('to', 'Introduce whom to give the money.').notEmpty();
   req.checkBody('from', 'Introduce who gave the money.').notEmpty();
   const errors = req.validationErrors();
@@ -124,7 +125,7 @@ export async function addPayment(req, res) {
       return res.status(404).send({ msg: 'Event not found.' });
     }
     await eventService.addPayment(to, from, amount, event);
-    return res.send({ msg: "Successful payment." });
+    return res.send({ msg: 'Successful payment.' });
   } catch (error) {
     res.status(400).send({ error });
   }

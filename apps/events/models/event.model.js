@@ -42,8 +42,8 @@ EventSchema.methods.addSpendings = async function (spending) {
 };
 
 EventSchema.methods.addDebts = async function (debts) {
-  this.debts = debts;
+  this.debts.push(debts);
   await this.save();
-}
+};
 
 export default mongoose.model('Event', EventSchema);

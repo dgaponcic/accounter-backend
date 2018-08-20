@@ -116,16 +116,28 @@ export async function allEvents(events) {
 }
 
 async function changeDebts(to, from, amount, debts) {
-  debts.forEach((debt) => {
-    if(debt.to === to && debt.from === from){
-      debt.amount -= amount;
-    }
-  })
-  return debts;
+  let match = false;
+  const changedDebts = debts.map((debt) => {
+    if (debt.to === to && debt.from === from && amount !== 0) {
+      match = true;
+      if (amount <= debt.amount) {
+        debt.amount -= amount;
+        return debt;
+      }
+        [debt.to, debt.from] = [debt.from, debt.to];
+        debt.amount = amount - debt.amount;
+        return debt;
+      }
+      return debt;
+  });
+  return {
+    debts: changedDebts,
+    match,
+  };
 }
 
 export async function addPayment(to, from, amount, event) {
-  const { debts } = event;
+  const debts = event.debts[event.debts.length - 1];
   const changedDebts = await changeDebts(to, from, amount, debts);
-  await event.addDebts(changedDebts);
+  if (changedDebts.match) await event.addDebts(changedDebts.debts);
 }
