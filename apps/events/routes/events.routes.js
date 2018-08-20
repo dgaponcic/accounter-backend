@@ -31,17 +31,10 @@ route.get(
 route.post(
   '/:id/add/spending',
   passport.authenticate('jwt', { session: false }),
-  EventController.validateUser,
+  catchAsyncErrors(EventController.validateUser),
   SpendingController.validateSpendingInput,
   SpendingController.createSpending,
 );
-
-// route.put(
-//   '/:id/spending',
-//   passport.authenticate('jwt', { session: false }),
-//   EventController.validateUser,
-//   SpendingController.editSpending,
-// )
 
 route.get(
   '/:id/spendings',
@@ -61,7 +54,15 @@ route.get(
   '/:id/debts',
   passport.authenticate('jwt', { session: false }),
   catchAsyncErrors(EventController.validateUser),
-  EventController.calculateDebts,
+  EventController.getDebts,
+);
+
+route.patch(
+  '/:id/add/payment',
+  passport.authenticate('jwt', { session: false }),
+  catchAsyncErrors(EventController.validateUser),
+  EventController.validatePayment,
+  EventController.addPayment,
 );
 
 export default route;

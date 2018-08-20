@@ -7,37 +7,57 @@ function count(spending, type) {
   return participants;
 }
 
+function roundDebts(debts) {
+	let normalizeSum = {};
+	Object.keys(debts).forEach((key) => {
+		normalizeSum[key] = debts[key] - Math.round(debts[key]);
+		debts[key] = Math.round(debts[key]);
+	})
+	var sum = Object.values(debts).reduce((total, value) => {
+		return total + value;
+	});
+	if(sum < 0) {
+		const key = Object.keys(normalizeSum).reduce((prev, current) => {
+			return (normalizeSum[prev] > normalizeSum[current]) ? prev : current;
+		});
+		debts[key] -= sum;
+	}
+	if(sum > 0) {
+		const key = Object.keys(normalizeSum).reduce((prev, current) => {
+			return (normalizeSum[prev] < normalizeSum[current]) ? prev : current;
+		});
+		debts[key] -= sum;
+	}
+	return debts;
+}
+
 function countDebts(spending, debts) {
   const payers = count(spending, 'payer');
   const consumers = count(spending, 'consumer');
   const { price } = spending;
-  const payerAmount = Math.round(price / payers);
-	const consumerAmount = Math.round(price / consumers);
-	let lastKey;
+  const payerAmount = price / payers;
+	const consumerAmount = price / consumers;
+	if(!spending.participants) return debts;
   spending.participants.forEach((participant) => {
-    const { username } = participant.participant;
+		const { username } = participant.participant;
     if (participant.type === 'payer') {
       debts[username] += payerAmount;
     }
     if (participant.type === 'consumer') {
       debts[username] -= consumerAmount;
 		}
-		lastKey = username;
 	});
-	var sum = Object.values(debts).reduce((total, value) => {
-		return total + value;
-	});
-	debts[lastKey] -= sum;
   return debts;
 }
 
 function initializeDebts(event) {
   const { participants } = event;
-  const debts = {};
+	const debts = {};
+	if(!participants) return {};
   participants.forEach((participant) => {
-    const { username } = participant.participant;
+		const { username } = participant.participant;
     debts[username] = 0;
-  });
+	});
   return debts;
 }
 
@@ -121,14 +141,15 @@ export async function calculateDebts(event) {
   if (!spendings) return null;
 	let debts = initializeDebts(event);
 	let totalDebts = await spendings.map(async (spending) => {
-    const populatedSpending = await findSpendingByIdAndPopulate(spending);
+		const populatedSpending = await findSpendingByIdAndPopulate(spending);
 		debts = await countDebts(populatedSpending, debts);
 		return debts;
 	});
 	totalDebts = await Promise.all(totalDebts);
-	totalDebts = totalDebts[totalDebts.length - 1];
+	totalDebts = roundDebts(totalDebts[totalDebts.length - 1]);
 	let results = [];
-	const result = algorithm(totalDebts, results, 0);
+	const result = algorithm(totalDebts, results);
 	results = result.results;
-	return results;
+	// return results
+	event.addDebts(results);
 }

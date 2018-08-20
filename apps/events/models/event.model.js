@@ -1,8 +1,6 @@
 import mongoose from 'mongoose';
 import * as cryptoService from '../../../common/crypto.service';
 
-// const deepPopulate = require('mongoose-deep-populate')(mongoose);
-
 const { Schema } = mongoose;
 
 // Define user schema
@@ -20,6 +18,7 @@ const EventSchema = Schema({
     invitationToken: String,
     invitationExpires: Date,
   },
+  debts: { type: Array, default: null },
 });
 
 // Create the invitation token
@@ -42,6 +41,9 @@ EventSchema.methods.addSpendings = async function (spending) {
   await this.save();
 };
 
-// EventSchema.plugin(deepPopulate);
+EventSchema.methods.addDebts = async function (debts) {
+  this.debts = debts;
+  await this.save();
+}
 
 export default mongoose.model('Event', EventSchema);

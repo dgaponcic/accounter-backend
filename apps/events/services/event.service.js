@@ -1,5 +1,6 @@
 import Event from '../models/event.model';
 import Spending from '../models/spending.model';
+import * as debtsService from '../services/debts.service';
 
 // Generate the invitation token
 export async function createEventToken(event) {
@@ -79,8 +80,11 @@ export async function addNewSpending(event, name, price, payers, consumers) {
   // Add participants to spending
   if (filteredPayers) addParticipants(filteredPayers, 'payer', spending);
   if (filteredConsumers) addParticipants(filteredConsumers, 'consumer', spending);
+  // Calculate debts
   // Add the spending and participants to event
   await Promise.all([spending.save(), event.addSpendings(spending)]);
+  event = await findEventById(event.id);
+  await debtsService.calculateDebts(event);
   return spending;
 }
 
@@ -109,4 +113,19 @@ export async function findEvent(id) {
 export async function allEvents(events) {
   const eventsList = await Event.find({ _id: { $in: events } }, { name: 1, _id: 1 });
   return eventsList;
+}
+
+async function changeDebts(to, from, amount, debts) {
+  debts.forEach((debt) => {
+    if(debt.to === to && debt.from === from){
+      debt.amount -= amount;
+    }
+  })
+  return debts;
+}
+
+export async function addPayment(to, from, amount, event) {
+  const { debts } = event;
+  const changedDebts = await changeDebts(to, from, amount, debts);
+  await event.addDebts(changedDebts);
 }
