@@ -45,7 +45,7 @@ function combineMaxAndMinValues(debts, results) {
 			isOwed: sortedDebts[length - 1][0],
 			amount: Math.abs(sortedDebts[0][1]),
 			});
-			sortedDebts[length - 1][1] -= sortedDebts[0][1];
+			sortedDebts[length - 1][1] += sortedDebts[0][1];
 			sortedDebts[0][1] = 0;
 	}
 	if (value < 0) {
@@ -122,7 +122,8 @@ export async function calculateDebts(event) {
 	totalDebts = await Promise.all(totalDebts);
 	totalDebts = totalDebts[totalDebts.length - 1];
 	let results = [];
-	const result = algorithm(totalDebts, results);
+	let object = {p1: 100, p2: -100};
+	const result = algorithm(totalDebts, results, 0);
 	results = result.results;
 	return results;
 }
