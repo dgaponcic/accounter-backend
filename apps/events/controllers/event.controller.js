@@ -12,7 +12,7 @@ export async function validateUser(req, res, next) {
   // Check if the user participate to the event
   const isParticipant = await eventService.validateUser(event, user);
   if (!isParticipant) {
-    return res.status(401).send({ msg: 'You are not a participant to this event.' });
+    return res.status(400).send({ msg: 'You are not a participant to this event.' });
   }
   next();
 }
@@ -77,7 +77,6 @@ export async function allEvents(req, res) {
 export async function getEvent(req, res) {
   const { id } = req.params;
   try {
-    // Find the event by id
     const event = await eventService.findEventByIdAndPopulate(id, 'spendings');
     if (!event) {
       return res.status(404).send({ msg: 'Event not found.' });
@@ -99,6 +98,7 @@ export async function getDebts(req, res) {
       return res.status(404).send({ msg: 'Event not found.' });
     }
     const debts = await debtsService.calculateDebts(event);
+    if (!debts) return res.send({ msg: 'No debts to show' });
     if (debts.length) return res.send({ msg: 'success', debts });
     return res.send({ msg: 'No debts to show.' });
   } catch (error) {

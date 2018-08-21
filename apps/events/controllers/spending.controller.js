@@ -25,6 +25,12 @@ export async function createSpending(req, res) {
   const { id } = req.params;
   try {
     // Find event by id
+    if (type === 'payment') {
+      const checkUser = eventService.checkUser(payers[0], consumers[0], req.user);
+      if(!checkUser) {
+        return res.status(400).send({ msg: 'You are not a participant to this payment.' });
+      }
+    }
     const event = await eventService.findEventById(id);
     if (!event) return res.status(404).send({ msg: 'Not Found.' });
     // Add new spending to event

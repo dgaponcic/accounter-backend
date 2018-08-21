@@ -1,5 +1,6 @@
 import Event from '../models/event.model';
 import Spending from '../models/spending.model';
+import * as userService from '../../users/services/user.service';
 
 // Generate the invitation token
 export async function createEventToken(event) {
@@ -116,4 +117,10 @@ export async function findEventById(id) {
 export async function allEvents(events) {
   const eventsList = await Event.find({ _id: { $in: events } }, { name: 1, _id: 1 });
   return eventsList;
+}
+
+export function checkUser(to, from, user) {
+  if(user.id !== to && user.id !== from)
+    return false;
+  return true;
 }

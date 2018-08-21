@@ -1,5 +1,6 @@
 import { findSpendingByIdAndPopulate } from './spending.service';
 
+// Count the number of payers and consumers
 function count(spending, type) {
   const participants = spending.participants.reduce((total, participant) => {
     return participant.type === type ? total + 1 : total;
@@ -50,6 +51,7 @@ function countDebts(spending, debts) {
   return debts;
 }
 
+// Initialize the debts object
 function initializeDebts(event) {
   const { participants } = event;
 	const debts = {};
@@ -95,7 +97,8 @@ function findComplementaryValues(debts, results) {
 	Object.keys(debts).forEach((key1) => {
 		Object.keys(debts).forEach((key2) => {
 			if (debts[key1] + debts[key2] === 0 && debts[key1] !== 0) {
-				results.push({ from: key1, to: key2, amount: Math.abs(debts[key1]) });
+				debts[key1] > debts[key2] ? results.push({ from: key2, to: key1, amount: Math.abs(debts[key1]) }) : 
+					results.push({ from: key1, to: key2, amount: Math.abs(debts[key1]) });
 				debts[key1] = 0;
 				debts[key2] = 0;
 				isComplemetary = true;
@@ -109,6 +112,8 @@ function findComplementaryValues(debts, results) {
 	};
 }
 
+// Check if all the fields in debts object are 0
+// Stop the algorithm if they are
 function checkDebts(debts) {
 	let isOver = true;
 	Object.keys(debts).forEach((key) => {
@@ -121,12 +126,7 @@ function checkDebts(debts) {
 
 function algorithm(debts, results) {
 	const isOver = checkDebts(debts);
-	if (isOver) {
-		return {
-		debts,
-		results,
-		};
-	}
+	if (isOver) return { debts, results };
 	debts = findComplementaryValues(debts, results);
 	results = debts.results;
 	while (debts.isComplemetary) {
@@ -138,7 +138,7 @@ function algorithm(debts, results) {
 
 export async function calculateDebts(event) {
 	const { spendings } = event;
-  if (!spendings) return null;
+  if (!spendings.length) return null;
 	let debts = initializeDebts(event);
 	let totalDebts = await spendings.map(async (spending) => {
 		const populatedSpending = await findSpendingByIdAndPopulate(spending);
