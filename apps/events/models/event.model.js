@@ -17,8 +17,7 @@ const EventSchema = Schema({
   token: {
     invitationToken: String,
     invitationExpires: Date,
-  },
-  debts: { type: Array, default: null },
+  }
 });
 
 // Create the invitation token
@@ -38,11 +37,6 @@ EventSchema.methods.addParticipants = async function (type, user) {
 // Add spending to the event
 EventSchema.methods.addSpendings = async function (spending) {
   this.spendings.push(spending);
-  await this.save();
-};
-
-EventSchema.methods.addDebts = async function (debts) {
-  this.debts.push(debts);
   await this.save();
 };
 

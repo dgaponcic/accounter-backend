@@ -150,6 +150,5 @@ export async function calculateDebts(event) {
 	let results = [];
 	const result = algorithm(totalDebts, results);
 	results = result.results;
-	// return results
-	event.addDebts(results);
+	return results;
 }

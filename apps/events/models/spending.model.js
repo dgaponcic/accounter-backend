@@ -12,6 +12,7 @@ const SpendingSchema = Schema({
     amount: { type: Number },
   }],
   price: { type: Number, required: true },
+  type: { type: String, required: true },
 });
 
 // Add payers or consumers

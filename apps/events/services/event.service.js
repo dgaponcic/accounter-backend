@@ -1,6 +1,5 @@
 import Event from '../models/event.model';
 import Spending from '../models/spending.model';
-import * as debtsService from '../services/debts.service';
 
 // Generate the invitation token
 export async function createEventToken(event) {
@@ -71,9 +70,9 @@ function addParticipants(participants, type, spending) {
   participants.map(participant => spending.addParticipant(type, participant));
 }
 
-export async function addNewSpending(event, name, price, payers, consumers) {
+export async function addNewSpending(type, event, name, price, payers, consumers) {
   // Create new instance of Spending
-  const spending = new Spending({ name, price });
+  const spending = new Spending({ name, price, type });
   // Filter payers and consumers
   const filteredPayers = filterParticipants(event, payers);
   const filteredConsumers = filterParticipants(event, consumers);
@@ -83,28 +82,32 @@ export async function addNewSpending(event, name, price, payers, consumers) {
   // Calculate debts
   // Add the spending and participants to event
   await Promise.all([spending.save(), event.addSpendings(spending)]);
-  event = await findEventById(event.id);
-  await debtsService.calculateDebts(event);
+  // event = await findEventById(event.id);
   return spending;
 }
 
-export async function findEventById(id) {
+export async function findEventByIdAndPopulate(id, type) {
   try {
     // Populate the fields
-    return await Event.findById(id)
+    const event = await Event.findById(id)
       .populate({
         path: 'participants.participant',
         select: 'username',
         model: 'User',
       })
-      .populate('spendings');
+      .populate('spendings', 'name');
+      if(type === 'spending')
+        event.spendings = event.spendings.filter((spending) => {
+          return spending.type === 'spending';
+        })
+      return event;
   } catch (error) {
     return undefined;
   }
 }
 
 // Find event by id
-export async function findEvent(id) {
+export async function findEventById(id) {
   const event = await Event.findById(id);
   return event;
 }
@@ -113,31 +116,4 @@ export async function findEvent(id) {
 export async function allEvents(events) {
   const eventsList = await Event.find({ _id: { $in: events } }, { name: 1, _id: 1 });
   return eventsList;
-}
-
-async function changeDebts(to, from, amount, debts) {
-  let match = false;
-  const changedDebts = debts.map((debt) => {
-    if (debt.to === to && debt.from === from && amount !== 0) {
-      match = true;
-      if (amount <= debt.amount) {
-        debt.amount -= amount;
-        return debt;
-      }
-        [debt.to, debt.from] = [debt.from, debt.to];
-        debt.amount = amount - debt.amount;
-        return debt;
-      }
-      return debt;
-  });
-  return {
-    debts: changedDebts,
-    match,
-  };
-}
-
-export async function addPayment(to, from, amount, event) {
-  const debts = event.debts[event.debts.length - 1];
-  const changedDebts = await changeDebts(to, from, amount, debts);
-  if (changedDebts.match) await event.addDebts(changedDebts.debts);
 }

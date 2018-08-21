@@ -5,7 +5,7 @@ export async function validateUser(req, res, next) {
   const { user } = req;
   const { id } = req.params;
   // Find the event by id
-  const event = await eventService.findEvent(id);
+  const event = await eventService.findEventById(id);
   if (!event) {
     return res.status(400).send({ msg: 'Event not found.' });
   }
@@ -52,7 +52,7 @@ export async function joinEvent(req, res) {
     if (event) {
       // Add the suer to participants of the event
       await eventService.addPeople(event, user);
-      return res.send({ msg: 'succes' });
+      return res.send({ msg: 'success' });
     }
     return res.status(404).send({ msg: 'No event Found' });
   } catch (error) {
@@ -66,7 +66,8 @@ export async function allEvents(req, res) {
   try {
     // Populate events
     const events = await eventService.allEvents(user.events);
-    return res.send({ msg: 'success', events });
+    if (events.length) return res.send({ msg: 'success', events });
+    return res.send({ msg: 'No events to show.' })
   } catch (error) {
     return res.status(400).send({ msg: error });
   }
@@ -77,7 +78,7 @@ export async function getEvent(req, res) {
   const { id } = req.params;
   try {
     // Find the event by id
-    const event = await eventService.findEventById(id);
+    const event = await eventService.findEventByIdAndPopulate(id, 'spendings');
     if (!event) {
       return res.status(404).send({ msg: 'Event not found.' });
     }
@@ -93,44 +94,14 @@ export async function getEvent(req, res) {
 export async function getDebts(req, res) {
   const { id } = req.params;
   try {
-    const event = await eventService.findEventById(id);
+    const event = await eventService.findEventByIdAndPopulate(id, 'debts');
     if (!event) {
       return res.status(404).send({ msg: 'Event not found.' });
     }
-    if (event.debts) return res.send({ msg: 'success', debts: event.debts });
+    const debts = await debtsService.calculateDebts(event);
+    if (debts.length) return res.send({ msg: 'success', debts });
     return res.send({ msg: 'No debts to show.' });
   } catch (error) {
     return res.status(400).send({ error });
   }
-}
-
-export async function validatePayment(req, res, next) {
-  req.checkBody('amount', 'Amount is required.').notEmpty();
-  if (req.body.amount) {
-    req.checkBody('amount', 'Amount must be a number.').isDecimal();
-  }
-  req.checkBody('to', 'Introduce whom to give the money.').notEmpty();
-  req.checkBody('from', 'Introduce who gave the money.').notEmpty();
-  const errors = req.validationErrors();
-  if (errors) return res.status(400).send(errors);
-  next();
-}
-
-export async function addPayment(req, res) {
-  const { to, from, amount } = req.body;
-  const { id } = req.params;
-  try {
-    const event = await eventService.findEventById(id);
-    if (!event) {
-      return res.status(404).send({ msg: 'Event not found.' });
-    }
-    await eventService.addPayment(to, from, amount, event);
-    return res.send({ msg: 'Successful payment.' });
-  } catch (error) {
-    res.status(400).send({ error });
-  }
-}
-
-export async function deleteParticipant(req, res) {
-  res.send({ msg: 'success' });
 }

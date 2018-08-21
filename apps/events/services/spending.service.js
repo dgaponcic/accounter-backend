@@ -25,7 +25,7 @@ async function getSpending(spendingsId) {
 // Find spendings by id and return their name
   const spendings = await Spending.find(
     { _id: { $in: spendingsId } },
-    { name: 1, _id: 1 },
+    { name: 1, _id: 1, type: 1},
   );
   return spendings;
 }

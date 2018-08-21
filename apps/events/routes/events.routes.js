@@ -57,12 +57,4 @@ route.get(
   EventController.getDebts,
 );
 
-route.patch(
-  '/:id/add/payment',
-  passport.authenticate('jwt', { session: false }),
-  catchAsyncErrors(EventController.validateUser),
-  EventController.validatePayment,
-  EventController.addPayment,
-);
-
 export default route;
