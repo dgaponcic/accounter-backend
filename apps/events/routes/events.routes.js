@@ -65,4 +65,12 @@ route.put(
   EventController.updateEvent,
 );
 
+route.put(
+  '/:id/spending/:spendingId',
+  passport.authenticate('jwt', { session: false }),
+  catchAsyncErrors(EventController.validateUser),
+  SpendingController.validateSpendingInput,
+  SpendingController.updateSpending,
+);
+
 export default route;

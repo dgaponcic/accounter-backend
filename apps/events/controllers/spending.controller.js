@@ -10,7 +10,7 @@ export async function validateSpendingInput(req, res, next) {
   req.checkBody('name', 'Too long name.').isLength({ max: 30 });
   req.checkBody('price', 'Price is required.').notEmpty();
   if (req.body.price) {
-    req.checkBody('price', 'Price is not a number.').isDecimal();
+    req.checkBody('price', 'Price is not a number or is negative.').isFloat({ gt: 0 });
   }
   req.checkBody('payers', 'Introduce the payers.').notEmpty();
   req.checkBody('consumers', 'Introduce the consumers.').notEmpty();
@@ -27,7 +27,7 @@ export async function createSpending(req, res) {
     // Find event by id
     if (type === 'payment') {
       const checkUser = eventService.checkUser(payers[0], consumers[0], req.user);
-      if(!checkUser) {
+      if (!checkUser) {
         return res.status(400).send({ msg: 'You are not a participant to this payment.' });
       }
     }
@@ -56,7 +56,7 @@ export async function getSpending(req, res) {
     // Find spending by id
     if (!event) return res.status(404).send({ msg: 'Not Found.' });
     const spending = await spendingService.findSpendingByIdAndPopulate(
-      spendingId
+      spendingId,
     );
     // Check if the spending belongs to event
     const check = spendingService.checkSpending(event, spending);
@@ -81,6 +81,26 @@ export async function getSpendings(req, res) {
       return spending.type === 'spending';
     })
     return res.send({ msg: 'success', spendings });
+  } catch (error) {
+    if (error.name === 'CastError') {
+      return res.status(400).send({ msg: 'Not Found' });
+    }
+    return res.status(400).send({ error });
+  }
+}
+
+export async function updateSpending(req, res) {
+  const { id, spendingId } = req.params;
+  const spending = req.body;
+  try {
+    const event = await eventService.findEventById(id);
+    const oldSpending = await spendingService.findSpendingById(
+      spendingId,
+    );
+    const check = spendingService.checkSpending(event, oldSpending);
+    if (!check) return res.status(404).send({ msg: 'Not Found.' });
+    await spendingService.updateSpending(spending, oldSpending);
+    return res.send({ updated: true });
   } catch (error) {
     if (error.name === 'CastError') {
       return res.status(400).send({ msg: 'Not Found' });

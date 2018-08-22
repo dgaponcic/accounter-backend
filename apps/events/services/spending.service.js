@@ -36,3 +36,8 @@ export async function getSpendings(event) {
   const spendings = await getSpending(spendingsId);
   return spendings;
 }
+
+export async function updateSpending(newSpending, oldSpending) {
+  const spending = await Spending.findByIdAndUpdate({ _id: oldSpending._id }, newSpending);
+  await spending.save();
+}
