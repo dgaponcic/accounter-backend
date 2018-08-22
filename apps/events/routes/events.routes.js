@@ -57,4 +57,12 @@ route.get(
   EventController.getDebts,
 );
 
+route.put(
+  '/:id/',
+  passport.authenticate('jwt', { session: false }),
+  catchAsyncErrors(EventController.validateUser),
+  EventController.validateEventCreation,
+  EventController.updateEvent,
+);
+
 export default route;

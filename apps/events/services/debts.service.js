@@ -32,13 +32,13 @@ function roundDebts(debts) {
 	return debts;
 }
 
-function countDebts(spending, debts) {
+export function countDebts(spending, debts) {
   const payers = count(spending, 'payer');
   const consumers = count(spending, 'consumer');
   const { price } = spending;
   const payerAmount = price / payers;
 	const consumerAmount = price / consumers;
-	if(!spending.participants) return debts;
+	if (!spending.participants) return debts;
   spending.participants.forEach((participant) => {
 		const { username } = participant.participant;
     if (participant.type === 'payer') {
@@ -48,14 +48,16 @@ function countDebts(spending, debts) {
       debts[username] -= consumerAmount;
 		}
 	});
+	// console.log(debts)
   return debts;
 }
 
 // Initialize the debts object
-function initializeDebts(event) {
-  const { participants } = event;
+export function initializeDebts(event) {
+	const { participants } = event;
+	// console.log(participants)
 	const debts = {};
-	if(!participants) return {};
+	if (!participants) return {};
   participants.forEach((participant) => {
 		const { username } = participant.participant;
     debts[username] = 0;
@@ -136,7 +138,7 @@ function algorithm(debts, results) {
 	return combineMaxAndMinValues(debts.debts, results);
 }
 
-export async function calculateDebts(event) {
+export async function initializeDebtsCalculation(event) {
 	const { spendings } = event;
   if (!spendings.length) return null;
 	let debts = initializeDebts(event);
@@ -147,7 +149,13 @@ export async function calculateDebts(event) {
 	});
 	totalDebts = await Promise.all(totalDebts);
 	totalDebts = roundDebts(totalDebts[totalDebts.length - 1]);
+	return totalDebts;
+}
+
+export async function calculateDebts(event) {
+	const totalDebts = await initializeDebtsCalculation(event);
 	let results = [];
+	if (!totalDebts) return null;
 	const result = algorithm(totalDebts, results);
 	results = result.results;
 	return results;

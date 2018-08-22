@@ -1,6 +1,7 @@
 import Event from '../models/event.model';
 import Spending from '../models/spending.model';
 import * as userService from '../../users/services/user.service';
+import * as debtsService from '../services/debts.service';
 
 // Generate the invitation token
 export async function createEventToken(event) {
@@ -97,10 +98,11 @@ export async function findEventByIdAndPopulate(id, type) {
         model: 'User',
       })
       .populate('spendings', 'name');
-      if(type === 'spending')
+      if (type === 'spending') {
         event.spendings = event.spendings.filter((spending) => {
           return spending.type === 'spending';
-        })
+        });
+      }
       return event;
   } catch (error) {
     return undefined;
@@ -120,7 +122,57 @@ export async function allEvents(events) {
 }
 
 export function checkUser(to, from, user) {
-  if(user.id !== to && user.id !== from)
-    return false;
+  if (user.id !== to && user.id !== from) return false;
   return true;
+}
+
+async function checkUsers(event, participants) {
+  const debts = await debtsService.initializeDebtsCalculation(event);
+  return participants.filter(async (participant) => {
+    const { username } = participant.participant;
+    return (debts[username] !== 0);
+  });
+}
+
+export async function updateEvent(newEvent, oldEvent) {
+  const newEventParticipants = [];
+  const oldEventParticipants = [];
+  newEvent.participants.forEach((participant) => {
+    return newEventParticipants.push(participant.participant._id);
+  });
+  const removedParticipants = oldEvent.participants.filter((participant) => {
+    oldEventParticipants.push(String(participant.participant._id));
+    return !newEventParticipants.includes(String(participant.participant._id));
+  });
+  const addedParticipants = newEventParticipants.filter((participant) => {
+    return !oldEventParticipants.includes(participant);
+  });
+  if (addedParticipants.length) {
+    addedParticipants.forEach(async (participant) => {
+      const user = await userService.findUserById(participant);
+      await user.addEvent(oldEvent);
+    });
+  }
+  if (removedParticipants && oldEvent.spendings.length) {
+    const checkedUsers = await checkUsers(oldEvent, removedParticipants);
+    if (checkedUsers.length) {
+      return {
+      msg: 'debts',
+      users: checkedUsers,
+      updated: false,
+      };
+    }
+  }
+  if (removedParticipants.length) {
+  removedParticipants.forEach(async (participant) => {
+      const user = await userService.findUserById(participant.participant);
+      user.deleteEvent(oldEvent._id);
+    });
+  }
+  const event = await Event.findByIdAndUpdate({ _id: oldEvent._id }, newEvent);
+  await event.save();
+  return {
+    msg: 'success',
+    updated: true,
+  };
 }

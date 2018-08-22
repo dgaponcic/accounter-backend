@@ -17,7 +17,7 @@ const EventSchema = Schema({
   token: {
     invitationToken: String,
     invitationExpires: Date,
-  }
+  },
 });
 
 // Create the invitation token

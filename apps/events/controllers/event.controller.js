@@ -67,7 +67,7 @@ export async function allEvents(req, res) {
     // Populate events
     const events = await eventService.allEvents(user.events);
     if (events.length) return res.send({ msg: 'success', events });
-    return res.send({ msg: 'No events to show.' })
+    return res.send({ msg: 'No events to show.' });
   } catch (error) {
     return res.status(400).send({ msg: error });
   }
@@ -101,6 +101,25 @@ export async function getDebts(req, res) {
     if (!debts) return res.send({ msg: 'No debts to show' });
     if (debts.length) return res.send({ msg: 'success', debts });
     return res.send({ msg: 'No debts to show.' });
+  } catch (error) {
+    return res.status(400).send({ error });
+  }
+}
+
+export async function updateEvent(req, res) {
+  const { id } = req.params;
+  const event = req.body;
+  try {
+    const oldEvent = await eventService.findEventByIdAndPopulate(id);
+    event.spendings = oldEvent.spendings;
+    const response = await eventService.updateEvent(event, oldEvent);
+    if (response.updated === false && response.msg === 'debts') {
+      return res.status(400).send({
+        msg: 'You can not delete the users. There are some debts left.',
+        users: response.users,
+      });
+    }
+    return res.send(response);
   } catch (error) {
     return res.status(400).send({ error });
   }

@@ -11,6 +11,11 @@ export async function createUser(username, email, rawPassword) {
   return user.save();
 }
 
+export async function findUserById(id) {
+  const user = await User.findById(id);
+  return user;
+}
+
 export async function findToken(user, type) {
   // Filter tokens by their type and expiration date
   const tokens = await user.tokens.filter(tokenObject => tokenObject.type === type

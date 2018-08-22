@@ -63,4 +63,10 @@ UserSchema.methods.createPassword = async function (password) {
   await this.save();
 };
 
+UserSchema.methods.deleteEvent = async function (eventId) {
+  const index = this.events.indexOf(eventId);
+  this.events.splice(index, 1);
+  await this.save();
+};
+
 export default mongoose.model('User', UserSchema);
