@@ -9,21 +9,21 @@ function count(spending, type) {
 }
 
 function roundDebts(debts) {
-	let normalizeSum = {};
+	const normalizeSum = {};
 	Object.keys(debts).forEach((key) => {
 		normalizeSum[key] = debts[key] - Math.round(debts[key]);
 		debts[key] = Math.round(debts[key]);
 	})
-	var sum = Object.values(debts).reduce((total, value) => {
+	const sum = Object.values(debts).reduce((total, value) => {
 		return total + value;
 	});
-	if(sum < 0) {
+	if (sum < 0) {
 		const key = Object.keys(normalizeSum).reduce((prev, current) => {
 			return (normalizeSum[prev] > normalizeSum[current]) ? prev : current;
 		});
 		debts[key] -= sum;
 	}
-	if(sum > 0) {
+	if (sum > 0) {
 		const key = Object.keys(normalizeSum).reduce((prev, current) => {
 			return (normalizeSum[prev] < normalizeSum[current]) ? prev : current;
 		});
@@ -48,14 +48,12 @@ export function countDebts(spending, debts) {
       debts[username] -= consumerAmount;
 		}
 	});
-	// console.log(debts)
   return debts;
 }
 
 // Initialize the debts object
 export function initializeDebts(event) {
 	const { participants } = event;
-	// console.log(participants)
 	const debts = {};
 	if (!participants) return {};
   participants.forEach((participant) => {
@@ -98,9 +96,10 @@ function findComplementaryValues(debts, results) {
 	let isComplemetary = false;
 	Object.keys(debts).forEach((key1) => {
 		Object.keys(debts).forEach((key2) => {
+			let [from, to] = [key1, key2];
 			if (debts[key1] + debts[key2] === 0 && debts[key1] !== 0) {
-				debts[key1] > debts[key2] ? results.push({ from: key2, to: key1, amount: Math.abs(debts[key1]) }) : 
-					results.push({ from: key1, to: key2, amount: Math.abs(debts[key1]) });
+				if (debts[key1] > debts[key2]) [from, to] = [to, from];
+					results.push({ from, to, amount: Math.abs(debts[key1]) });
 				debts[key1] = 0;
 				debts[key2] = 0;
 				isComplemetary = true;
@@ -130,10 +129,10 @@ function algorithm(debts, results) {
 	const isOver = checkDebts(debts);
 	if (isOver) return { debts, results };
 	debts = findComplementaryValues(debts, results);
-	results = debts.results;
+	({ results } = debts);
 	while (debts.isComplemetary) {
 		debts = findComplementaryValues(debts.debts, results);
-		results = debts.results;
+		({ results } = debts);
 	}
 	return combineMaxAndMinValues(debts.debts, results);
 }
@@ -157,6 +156,6 @@ export async function calculateDebts(event) {
 	let results = [];
 	if (!totalDebts) return null;
 	const result = algorithm(totalDebts, results);
-	results = result.results;
+	({ results } = result);
 	return results;
 }

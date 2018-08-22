@@ -1,7 +1,7 @@
 import Event from '../models/event.model';
 import Spending from '../models/spending.model';
 import * as userService from '../../users/services/user.service';
-import * as debtsService from '../services/debts.service';
+import * as debtsService from './debts.service';
 
 // Generate the invitation token
 export async function createEventToken(event) {
@@ -134,7 +134,22 @@ async function checkUsers(event, participants) {
   });
 }
 
-export async function updateEvent(newEvent, oldEvent) {
+export async function findEventByIdAndPopulateUsers(id) {
+  try {
+    // Populate participants
+    const event = await Event.findById(id)
+      .populate({
+        path: 'participants.participant',
+        select: 'username',
+        model: 'User',
+      });
+      return event;
+  } catch (error) {
+    return undefined;
+  }
+}
+
+function AddedAndRemovedParticipants(newEvent, oldEvent) {
   const newEventParticipants = [];
   const oldEventParticipants = [];
   newEvent.participants.forEach((participant) => {
@@ -147,32 +162,44 @@ export async function updateEvent(newEvent, oldEvent) {
   const addedParticipants = newEventParticipants.filter((participant) => {
     return !oldEventParticipants.includes(participant);
   });
+  return {
+    addedParticipants,
+    removedParticipants,
+  };
+}
+
+// Add event to participant
+async function addParticipantsUpdate(addedParticipants, oldEvent) {
+  addedParticipants.forEach(async (participant) => {
+    const user = await userService.findUserById(participant);
+    await user.addEvent(oldEvent);
+  });
+}
+
+// Remove event from participant
+async function removeParticipantsUpdate(removedParticipants, oldEvent) {
+  removedParticipants.forEach(async (participant) => {
+    const user = await userService.findUserById(participant.participant);
+    user.deleteEvent(oldEvent._id);
+  });
+}
+
+export async function updateEvent(newEvent, oldEvent) {
+  const participantsDiff = AddedAndRemovedParticipants(newEvent, oldEvent);
+  const { removedParticipants, addedParticipants } = participantsDiff;
   if (addedParticipants.length) {
-    addedParticipants.forEach(async (participant) => {
-      const user = await userService.findUserById(participant);
-      await user.addEvent(oldEvent);
-    });
+    await addParticipantsUpdate(addedParticipants, oldEvent);
   }
-  if (removedParticipants && oldEvent.spendings.length) {
+  if (removedParticipants.length && oldEvent.spendings.length) {
     const checkedUsers = await checkUsers(oldEvent, removedParticipants);
     if (checkedUsers.length) {
-      return {
-      msg: 'debts',
-      users: checkedUsers,
-      updated: false,
-      };
+      return { msg: 'debts', users: checkedUsers, updated: false };
     }
   }
   if (removedParticipants.length) {
-  removedParticipants.forEach(async (participant) => {
-      const user = await userService.findUserById(participant.participant);
-      user.deleteEvent(oldEvent._id);
-    });
+    await removeParticipantsUpdate(removedParticipants, oldEvent);
   }
   const event = await Event.findByIdAndUpdate({ _id: oldEvent._id }, newEvent);
   await event.save();
-  return {
-    msg: 'success',
-    updated: true,
-  };
+  return { msg: 'success', updated: true };
 }

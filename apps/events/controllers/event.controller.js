@@ -110,7 +110,7 @@ export async function updateEvent(req, res) {
   const { id } = req.params;
   const event = req.body;
   try {
-    const oldEvent = await eventService.findEventByIdAndPopulate(id);
+    const oldEvent = await eventService.findEventByIdAndPopulateUsers(id);
     event.spendings = oldEvent.spendings;
     const response = await eventService.updateEvent(event, oldEvent);
     if (response.updated === false && response.msg === 'debts') {
