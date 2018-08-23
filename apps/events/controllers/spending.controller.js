@@ -126,3 +126,19 @@ export async function deleteSpending(req, res) {
     return res.status(400).send({ error });
   }
 }
+
+export async function searchSpendings(req, res) {
+  const { id } = req.params;
+  const { query } = req.query;
+  try {
+    const event = await eventService.findEventById(id);
+    const spendings = await spendingService.searchSpendings(event, query);
+    if (spendings.length) return res.send({ spendings });
+    return res.status(400).send({ msg: 'Not found.' });
+  } catch (error) {
+    if (error.name === 'CastError') {
+      return res.status(400).send({ msg: 'Not Found' });
+    }
+    return res.status(400).send({ error });
+  }
+}

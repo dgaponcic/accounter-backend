@@ -65,3 +65,37 @@ export async function deleteSpending(spending, event) {
   await event.deleteSpending(spending);
   await Spending.findByIdAndRemove(spending._id);
 }
+
+export async function searchSpendings(event, query) {
+  const spendingsIds = event.spendings;
+  const spendings = await Spending.find(
+    { _id: { $in: spendingsIds },
+    name: {
+      $regex: new RegExp(query),
+    },
+}, {
+  textScore: { $meta: 'textScore' },
+},
+{
+  sort: {
+    textScore: { $meta: 'textScore' },
+  },
+},
+).limit(3);
+// const spendings = await Spending.aggregate([
+//   {
+//     $match: { name: { $regex: new RegExp(query) } },
+//   },
+//   {
+//     $match: { _id: { $in: spendingsIds } },
+//   },
+//   { $project: {
+//         score: { $meta: 'textScore' },
+//       } }, {
+//     $sort: {
+//             score: { $meta: 'textScore' },
+//           },
+//   },
+// ])
+return spendings;
+}

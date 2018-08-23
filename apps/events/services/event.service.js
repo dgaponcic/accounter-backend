@@ -117,7 +117,7 @@ export async function findEventById(id) {
 
 // Return all user's events
 export async function allEvents(events, page) {
-  const limit = 5;
+  const limit = 2;
   const pages = Math.ceil(events.length / limit);
   if (page > pages) page = pages;
   const skip = (page - 1) * limit;
@@ -235,4 +235,18 @@ export function isEventAuthor(user, event) {
       && String(participant.participant._id) === String(user._id);
   });
 	return isAuthor;
+}
+
+export async function searchEvents(query) {
+  const limit = 5;
+  const events = await Event.find({
+    name: {
+          $regex: new RegExp(query),
+        },
+  }, {
+      score: { $meta: 'textScore' },
+    }).sort({
+    score: { $meta: 'textScore' },
+  }).limit(limit);
+  return events;
 }

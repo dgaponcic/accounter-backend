@@ -63,9 +63,9 @@ export async function joinEvent(req, res) {
 // Give information about all events
 export async function allEvents(req, res) {
   const { user } = req;
+  const page = req.params.page || 1;
   try {
     // Populate events
-    const page = req.params.page || 1;
     const events = await eventService.allEvents(user.events, page);
     if (events.length) return res.send({ msg: 'success', events });
     return res.send({ msg: 'No events to show.' });
@@ -153,5 +153,16 @@ export async function deleteEvent(req, res) {
       return res.status(400).send({ msg: 'Not Found' });
     }
     res.status(400).send({ error });
+  }
+}
+
+export async function searchEvents(req, res) {
+  const { query } = req.query;
+  try {
+    const events = await eventService.searchEvents(query);
+    if (events.length) return res.send({ events });
+    return res.status(400).send({ msg: 'Not found.' });
+  } catch (error) {
+    return res.status(400).send({ error });
   }
 }

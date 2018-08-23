@@ -10,6 +10,12 @@ route.get('/', passport.authenticate('jwt', { session: false }), EventController
 route.get('/page/:page', passport.authenticate('jwt', { session: false }), EventController.allEvents);
 
 route.get(
+  '/search',
+  passport.authenticate('jwt', { session: false }),
+  EventController.searchEvents,
+);
+
+route.get(
   '/:id',
   passport.authenticate('jwt', { session: false }),
   catchAsyncErrors(EventController.validateUser),
@@ -42,6 +48,13 @@ route.get(
   passport.authenticate('jwt', { session: false }),
   catchAsyncErrors(EventController.validateUser),
   SpendingController.getSpendings,
+);
+
+route.get(
+  '/:id/spendings/search',
+  passport.authenticate('jwt', { session: false }),
+  catchAsyncErrors(EventController.validateUser),
+  SpendingController.searchSpendings,
 );
 
 route.get(
