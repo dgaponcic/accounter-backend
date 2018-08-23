@@ -7,6 +7,7 @@ import catchAsyncErrors from '../../../settings/error.handler';
 const route = express.Router();
 
 route.get('/', passport.authenticate('jwt', { session: false }), EventController.allEvents);
+route.get('/page/:page', passport.authenticate('jwt', { session: false }), EventController.allEvents);
 
 route.get(
   '/:id',
@@ -44,6 +45,13 @@ route.get(
 );
 
 route.get(
+  '/:id/spendings/page/:page',
+  passport.authenticate('jwt', { session: false }),
+  catchAsyncErrors(EventController.validateUser),
+  SpendingController.getSpendings,
+);
+
+route.get(
   '/:id/spending/:spendingId',
   passport.authenticate('jwt', { session: false }),
   catchAsyncErrors(EventController.validateUser),
@@ -71,6 +79,21 @@ route.put(
   catchAsyncErrors(EventController.validateUser),
   SpendingController.validateSpendingInput,
   SpendingController.updateSpending,
+);
+
+route.delete(
+  '/:id/',
+  passport.authenticate('jwt', { session: false }),
+  catchAsyncErrors(EventController.validateUser),
+  EventController.checkEvent,
+  EventController.deleteEvent,
+);
+
+route.delete(
+  '/:id/spending/:spendingId',
+  passport.authenticate('jwt', { session: false }),
+  catchAsyncErrors(EventController.validateUser),
+  SpendingController.deleteSpending,
 );
 
 export default route;

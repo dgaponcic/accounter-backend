@@ -72,14 +72,15 @@ export async function getSpending(req, res) {
 
 export async function getSpendings(req, res) {
   const { id } = req.params;
+  const { page } = req.params || 1;
   try {
     // Find event by id
     const event = await eventService.findEventById(id);
     // Find all spendings of that event
-    let spendings = await spendingService.getSpendings(event);
+    let spendings = await spendingService.getSpendings(event, page);
     spendings = spendings.filter((spending) => {
       return spending.type === 'spending';
-    })
+    });
     return res.send({ msg: 'success', spendings });
   } catch (error) {
     if (error.name === 'CastError') {
@@ -101,6 +102,23 @@ export async function updateSpending(req, res) {
     if (!check) return res.status(404).send({ msg: 'Not Found.' });
     await spendingService.updateSpending(spending, oldSpending);
     return res.send({ updated: true });
+  } catch (error) {
+    if (error.name === 'CastError') {
+      return res.status(400).send({ msg: 'Not Found' });
+    }
+    return res.status(400).send({ error });
+  }
+}
+
+export async function deleteSpending(req, res) {
+  const { id, spendingId } = req.params;
+  try {
+    const event = await eventService.findEventById(id);
+    const spending = await spendingService.findSpendingById(spendingId);
+    const check = spendingService.checkSpending(event, spending);
+    if (!check) return res.status(404).send({ msg: 'Not Found.' });
+    await spendingService.deleteSpending(spending, event);
+    return res.send({ msg: 'Deleted.' });
   } catch (error) {
     if (error.name === 'CastError') {
       return res.status(400).send({ msg: 'Not Found' });

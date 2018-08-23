@@ -40,4 +40,10 @@ EventSchema.methods.addSpendings = async function (spending) {
   await this.save();
 };
 
+EventSchema.methods.deleteSpending = async function (spending) {
+  const index = this.spendings.indexOf(spending._id);
+  this.spendings.splice(index, 1);
+  await this.save();
+};
+
 export default mongoose.model('Event', EventSchema);

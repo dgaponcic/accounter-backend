@@ -65,7 +65,8 @@ export async function allEvents(req, res) {
   const { user } = req;
   try {
     // Populate events
-    const events = await eventService.allEvents(user.events);
+    const page = req.params.page || 1;
+    const events = await eventService.allEvents(user.events, page);
     if (events.length) return res.send({ msg: 'success', events });
     return res.send({ msg: 'No events to show.' });
   } catch (error) {
@@ -77,7 +78,7 @@ export async function allEvents(req, res) {
 export async function getEvent(req, res) {
   const { id } = req.params;
   try {
-    const event = await eventService.findEventByIdAndPopulate(id, 'spendings');
+    const event = await eventService.findEventByIdAndPopulate(id, 'name', 'spendings');
     if (!event) {
       return res.status(404).send({ msg: 'Event not found.' });
     }
@@ -93,7 +94,7 @@ export async function getEvent(req, res) {
 export async function getDebts(req, res) {
   const { id } = req.params;
   try {
-    const event = await eventService.findEventByIdAndPopulate(id, 'debts');
+    const event = await eventService.findEventByIdAndPopulate(id, 'name', 'debts');
     if (!event) {
       return res.status(404).send({ msg: 'Event not found.' });
     }
@@ -110,17 +111,47 @@ export async function updateEvent(req, res) {
   const { id } = req.params;
   const event = req.body;
   try {
-    const oldEvent = await eventService.findEventByIdAndPopulateUsers(id);
+    const oldEvent = await eventService.findEventByIdAndPopulate(id, 'participants');
     event.spendings = oldEvent.spendings;
     const response = await eventService.updateEvent(event, oldEvent);
-    if (response.updated === false && response.msg === 'debts') {
+    if (response.updated === false && response.msg === 'spendings') {
       return res.status(400).send({
-        msg: 'You can not delete the users. There are some debts left.',
-        users: response.users,
+        msg: 'You can not delete the users. They have already participated to spendings.',
       });
     }
     return res.send(response);
   } catch (error) {
     return res.status(400).send({ error });
+  }
+}
+
+export async function checkEvent(req, res, next) {
+  try {
+    const { id } = req.params;
+    const event = await eventService.findEventByIdAndPopulate(id, 'participants');
+    const isAuthor = eventService.isEventAuthor(req.user, event);
+    if (isAuthor) return next();
+    const debts = await debtsService.initializeDebtsCalculation(event);
+    if (!debts) return next(null, event);
+    const noDebts = debtsService.checkDebts(debts);
+    if (noDebts) return next();
+    return res.status(400).send({ msg: 'You can not delete the event.' });
+  } catch (error) {
+    if (error.name === 'CastError') {
+      return res.status(400).send({ msg: 'Not Found' });
+    }
+    return res.status(400).send({ error });
+  }
+}
+
+export async function deleteEvent(req, res) {
+  try {
+  await eventService.deleteEvent(req.params.id);
+  return res.send({ msg: 'Deleted.' });
+  } catch (error) {
+    if (error.name === 'CastError') {
+      return res.status(400).send({ msg: 'Not Found' });
+    }
+    res.status(400).send({ error });
   }
 }

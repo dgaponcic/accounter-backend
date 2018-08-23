@@ -13,7 +13,7 @@ function roundDebts(debts) {
 	Object.keys(debts).forEach((key) => {
 		normalizeSum[key] = debts[key] - Math.round(debts[key]);
 		debts[key] = Math.round(debts[key]);
-	})
+	});
 	const sum = Object.values(debts).reduce((total, value) => {
 		return total + value;
 	});
@@ -115,7 +115,7 @@ function findComplementaryValues(debts, results) {
 
 // Check if all the fields in debts object are 0
 // Stop the algorithm if they are
-function checkDebts(debts) {
+export function checkDebts(debts) {
 	let isOver = true;
 	Object.keys(debts).forEach((key) => {
 		if (debts[key] !== 0) {
