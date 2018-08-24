@@ -109,4 +109,11 @@ route.delete(
   SpendingController.deleteSpending,
 );
 
+route.get(
+  '/:id/history',
+  passport.authenticate('jwt', { session: false }),
+  catchAsyncErrors(EventController.validateUser),
+  EventController.getHistory,
+);
+
 export default route;

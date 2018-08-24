@@ -168,3 +168,14 @@ export async function searchEvents(req, res) {
     return res.status(400).send({ error });
   }
 }
+
+export async function getHistory(req, res) {
+  const { id } = req.params;
+  try {
+    const event = await eventService.findEventById(id);
+    const history = await eventService.getHistory(event);
+    return res.send({ history });
+  } catch (error) {
+    res.status(400).send({ error });
+  }
+}

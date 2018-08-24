@@ -25,8 +25,9 @@ export async function checkSpending(event, spending) {
 async function getSpending(spendingsId, page) {
   const limit = 2;
   const pages = Math.ceil(spendingsId.length / limit);
+  let skip = 0;
+  if (pages > 0) skip = (page - 1) * limit;
   if (page > pages) page = pages;
-  const skip = (page - 1) * limit;
 // Find spendings by id and return their name
   const spendings = await Spending.find(
     { _id: { $in: spendingsId }, type: 'spending' },

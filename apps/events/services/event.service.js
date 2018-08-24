@@ -1,6 +1,7 @@
 import Event from '../models/event.model';
 import Spending from '../models/spending.model';
 import User from '../../users/models/user.model';
+import History from '../models/history.model';
 import * as userService from '../../users/services/user.service';
 import * as debtsService from './debts.service';
 
@@ -10,19 +11,31 @@ export async function createEventToken(event) {
   return event.token.invitationToken;
 }
 
+async function addActivity(actor, verb, objectType, object, event) {
+  if (!event) event = object;
+  object = { type: objectType, object };
+  const history = new History({
+    event,
+    actor,
+    verb,
+    object,
+  });
+  await history.save();
+}
+
 export async function createNewEvent(name, startAt, finishAt, user) {
   // Create a new instance of Event
   const event = new Event({
     name,
     startAt,
     finishAt,
-    // author: user,
   });
   // Add the author of the event to the participants
   await event.addParticipants('author', user);
   // Add the event to the user
   await user.addEvent(event);
   await event.save();
+  await addActivity(user, 'created', 'Event', event);
   return createEventToken(event);
 }
 
@@ -50,6 +63,7 @@ export async function addPeople(event, user) {
     await event.addParticipants('participant', user);
     // Add the event to user
     await user.addEvent(event);
+    await addActivity(user, 'joined', 'Event', event);
   }
 }
 
@@ -73,7 +87,7 @@ export function addParticipants(participants, type, spending) {
   participants.map(participant => spending.addParticipant(type, participant));
 }
 
-export async function addNewSpending(type, event, name, price, payers, consumers) {
+export async function addNewSpending(type, event, name, price, payers, consumers, user) {
   // Create new instance of Spending
   const spending = new Spending({ name, price, type });
   // Filter payers and consumers
@@ -86,6 +100,7 @@ export async function addNewSpending(type, event, name, price, payers, consumers
   // Add the spending and participants to event
   await Promise.all([spending.save(), event.addSpendings(spending)]);
   // event = await findEventById(event.id);
+  await addActivity(user, 'added', 'Spending', spending, event);
   return spending;
 }
 
@@ -120,8 +135,9 @@ export async function findEventById(id) {
 export async function allEvents(events, page) {
   const limit = 2;
   const pages = Math.ceil(events.length / limit);
+  let skip = 0;
+  if (pages > 0) skip = (page - 1) * limit;
   if (page > pages) page = pages;
-  const skip = (page - 1) * limit;
   events = await Event
   .find(
     { _id: { $in: events } },
@@ -255,4 +271,17 @@ export async function getPercentages(event) {
   // let percentages = await debtsService.initializeDebts(event);
   const percentages = await debtsService.getPercentages(event.spendings, event);
   return percentages;
+}
+
+export async function getHistory(event) {
+  const history = await History.find({ event })
+  .populate('actor', 'username')
+  .populate({
+    path: 'object.object',
+    select: 'name',
+    model: 'object.type',
+  })
+  .populate('to', 'username')
+  .sort({ createdAt: -1 });
+  return history;
 }

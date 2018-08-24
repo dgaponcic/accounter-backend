@@ -41,6 +41,7 @@ export async function createSpending(req, res) {
       price,
       payers,
       consumers,
+      req.user,
     );
     return res.status(201).send({ msg: 'success' });
   } catch (error) {
@@ -79,6 +80,7 @@ export async function getSpendings(req, res) {
     // Find all spendings of that event
     const results = await spendingService.getSpendings(event, page);
     const { spendings, pages } = results;
+    if (!spendings.length) return res.send({ msg: 'No spendings to show.' });
     return res.send({ msg: 'success', spendings, pages });
   } catch (error) {
     if (error.name === 'CastError') {
