@@ -1,52 +1,50 @@
-const express = require('express');
-const chalk = require('chalk');
-// const debug = require('debug')('app');
-const morgan = require('morgan');
-const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
-const config = require('./config/database');
-const User = require('./models/user.model');
-const expressValidator = require('express-validator');
-const passport = require('passport');
+import express from 'express';
+import chalk from 'chalk';
+import morgan from 'morgan';
+import bodyParser from 'body-parser';
+import mongoose from 'mongoose';
+import passport from 'passport';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import validator from './common/validator';
+import authRouter from './apps/users/routes/auth.routes';
+import eventRouter from './apps/events/routes/events.routes';
+import config from './config/config';
+import passportConfig from './config/passport';
+import googlePassportConfig from './config/google.passport';
 
-mongoose.connect(config.database);
-const db = mongoose.connection;
+passportConfig(passport);
+googlePassportConfig(passport);
+dotenv.config();
 const app = express();
-const port = 8000;
-const authRouter = require('./routes/auth');
+// Set mongoose.Promise to any Promise implementation
+mongoose.Promise = Promise;
+mongoose.connect(
+  config.get('mongo.main'),
+  { useNewUrlParser: true },
+);
+const port = config.get('port');
 
+app.use(cors());
 app.use(morgan('tiny'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(expressValidator({
-    errorFormatter: (param, msg, value) => {
-        var namespace = param.split('.')
-        , root = namespace.shift()
-        , formParam = root;
+app.use(validator);
 
-        while(namespace.length) {
-            formParam += '[' + namespace.shift() + ']';
-        }
-        return {
-            param : formParam,
-            msg: msg,
-            value: value
-        }
-    }
-}))
-
-
-require('./config/passport')(passport);
-
+// Keep the user in session
 app.use(passport.initialize());
 app.use(passport.session());
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
 
-app.get('/', (req, res) => {
-    res.send('welcome');
-})
+passport.deserializeUser((user, done) => {
+  done(null, user);
+});
 
 app.use('/users', authRouter);
+app.use('/events', eventRouter);
 
 app.listen(port, () => {
-    console.log(`listening on ${chalk.green(port)}`);
-})
+  console.log(`listening on ${chalk.green(port)}`);
+});

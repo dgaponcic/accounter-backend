@@ -1,0 +1,7 @@
+registerURL=http://192.168.84.220:8080/#/confirmation/
+passwordResetURL=http://192.168.84.220:8080/#/forgot/confirmation/
+GOOGLE_CLIENT_ID=651374852647-4u599377nd6t8309f3t7ns25n5ko6nms.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=M193c4Ywx3gf_WsyK9SiSPF8
+tokenJWTSecret=secret_key
+host=localhost
+mailPort=1025

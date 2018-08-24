@@ -1,13 +1,12 @@
-var passwordValidator = require('password-validator');
+import PasswordValidator from 'password-validator';
 
-var schema = new passwordValidator();
- 
+// Define password validator
+const schema = new PasswordValidator();
+
 schema
-.is().min(6)
-.is().max(20)
-.has().uppercase()
-.has().lowercase()
-.has().digits()
-.has().not().spaces()
- 
-module.exports = schema;
+  .min(6)
+  .max(20)
+  .has().not()
+  .spaces();
+
+export default schema;
