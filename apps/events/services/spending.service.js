@@ -34,7 +34,7 @@ async function getSpending(spendingsId, page) {
   )
   .sort()
   .skip(skip)
-  .limit(limit);
+  .limit(limit * page);
   return spendings;
 }
 
@@ -68,34 +68,15 @@ export async function deleteSpending(spending, event) {
 
 export async function searchSpendings(event, query) {
   const spendingsIds = event.spendings;
+  const limit = 10;
   const spendings = await Spending.find(
     { _id: { $in: spendingsIds },
-    name: {
-      $regex: new RegExp(query),
-    },
-}, {
-  textScore: { $meta: 'textScore' },
-},
-{
-  sort: {
-    textScore: { $meta: 'textScore' },
-  },
-},
-).limit(3);
-// const spendings = await Spending.aggregate([
-//   {
-//     $match: { name: { $regex: new RegExp(query) } },
-//   },
-//   {
-//     $match: { _id: { $in: spendingsIds } },
-//   },
-//   { $project: {
-//         score: { $meta: 'textScore' },
-//       } }, {
-//     $sort: {
-//             score: { $meta: 'textScore' },
-//           },
-//   },
-// ])
-return spendings;
+      name: {
+      $regex: new RegExp(query, 'i'),
+      },
+    }, { name: 1, createdAt: 1 },
+  )
+  .sort({ createdAt: -1 })
+  .limit(limit);
+  return spendings;
 }

@@ -127,7 +127,7 @@ export async function allEvents(events, page) {
     { name: 1, _id: 1 },
   )
   .skip(skip)
-  .limit(limit)
+  .limit(limit * page)
   .sort({ finishAt: 1 });
   return eventsList;
 }
@@ -238,15 +238,11 @@ export function isEventAuthor(user, event) {
 }
 
 export async function searchEvents(query) {
-  const limit = 5;
+  const limit = 10;
   const events = await Event.find({
-    name: {
-          $regex: new RegExp(query),
-        },
-  }, {
-      score: { $meta: 'textScore' },
-    }).sort({
-    score: { $meta: 'textScore' },
-  }).limit(limit);
+      name: { $regex: new RegExp(query) },
+    }, { name: 1, createdAt: 1 })
+    .sort({ createdAt: -1 })
+    .limit(limit);
   return events;
 }
