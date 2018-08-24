@@ -77,11 +77,9 @@ export async function getSpendings(req, res) {
     // Find event by id
     const event = await eventService.findEventById(id);
     // Find all spendings of that event
-    let spendings = await spendingService.getSpendings(event, page);
-    spendings = spendings.filter((spending) => {
-      return spending.type === 'spending';
-    });
-    return res.send({ msg: 'success', spendings });
+    const results = await spendingService.getSpendings(event, page);
+    const { spendings, pages } = results;
+    return res.send({ msg: 'success', spendings, pages });
   } catch (error) {
     if (error.name === 'CastError') {
       return res.status(400).send({ msg: 'Not Found' });

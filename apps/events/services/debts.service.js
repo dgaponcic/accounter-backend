@@ -1,4 +1,5 @@
 import { findSpendingByIdAndPopulate } from './spending.service';
+import Spending from '../models/spending.model';
 
 // Count the number of payers and consumers
 function count(spending, type) {
@@ -158,4 +159,44 @@ export async function calculateDebts(event) {
 	const result = algorithm(totalDebts, results);
 	({ results } = result);
 	return results;
+}
+
+function amountPerSpending(spending, percentages) {
+	const payerAmount = spending.price / count(spending, 'payer');
+	const { participants } = spending;
+	participants.forEach((participant) => {
+		if (participant.type === 'payer') {
+			percentages[participant.participant.username] += payerAmount;
+		}
+	});
+	return percentages;
+}
+
+function calculatePercentage(percentages, sum) {
+	Object.keys(percentages).forEach((key) => {
+		percentages[key] = Math.round(percentages[key] / sum * 100);
+	});
+	return percentages;
+}
+
+function calculateAmount(percentages, spendings) {
+	let sum = 0;
+	spendings.forEach((spending) => {
+		sum += spending.price;
+		percentages = amountPerSpending(spending, percentages);
+	});
+	return calculatePercentage(percentages, sum);
+}
+
+export async function getPercentages(spendingsId, event) {
+	let spendings = await Spending.find(
+    { _id: { $in: spendingsId }, type: 'spending' },
+	);
+	if (!spendings.length) return null;
+	const percentages = initializeDebts(event);
+	spendings = await spendings.map(async (spending) => {
+		return findSpendingByIdAndPopulate(spending._id);
+	});
+	spendings = await Promise.all(spendings);
+	return calculateAmount(percentages, spendings);
 }

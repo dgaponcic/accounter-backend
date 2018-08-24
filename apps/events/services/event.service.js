@@ -2,6 +2,7 @@ import Event from '../models/event.model';
 import Spending from '../models/spending.model';
 import User from '../../users/models/user.model';
 import * as userService from '../../users/services/user.service';
+import * as debtsService from './debts.service';
 
 // Generate the invitation token
 export async function createEventToken(event) {
@@ -121,15 +122,18 @@ export async function allEvents(events, page) {
   const pages = Math.ceil(events.length / limit);
   if (page > pages) page = pages;
   const skip = (page - 1) * limit;
-  const eventsList = await Event
+  events = await Event
   .find(
     { _id: { $in: events } },
     { name: 1, _id: 1 },
   )
   .skip(skip)
-  .limit(limit * page)
+  .limit(limit)
   .sort({ finishAt: 1 });
-  return eventsList;
+  return {
+    events,
+    pages,
+  };
 }
 
 export function checkUser(to, from, user) {
@@ -245,4 +249,10 @@ export async function searchEvents(query) {
     .sort({ createdAt: -1 })
     .limit(limit);
   return events;
+}
+
+export async function getPercentages(event) {
+  // let percentages = await debtsService.initializeDebts(event);
+  const percentages = await debtsService.getPercentages(event.spendings, event);
+  return percentages;
 }

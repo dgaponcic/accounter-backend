@@ -29,13 +29,16 @@ async function getSpending(spendingsId, page) {
   const skip = (page - 1) * limit;
 // Find spendings by id and return their name
   const spendings = await Spending.find(
-    { _id: { $in: spendingsId } },
+    { _id: { $in: spendingsId }, type: 'spending' },
     { name: 1, _id: 1, type: 1 },
   )
   .sort()
   .skip(skip)
-  .limit(limit * page);
-  return spendings;
+  .limit(limit);
+  return {
+    spendings,
+    pages,
+  };
 }
 
 // Find all spendings of an event

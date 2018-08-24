@@ -66,8 +66,9 @@ export async function allEvents(req, res) {
   const page = req.params.page || 1;
   try {
     // Populate events
-    const events = await eventService.allEvents(user.events, page);
-    if (events.length) return res.send({ msg: 'success', events });
+    const results = await eventService.allEvents(user.events, page);
+    const { events, pages } = results;
+    if (events.length) return res.send({ msg: 'success', events, pages });
     return res.send({ msg: 'No events to show.' });
   } catch (error) {
     return res.status(400).send({ msg: error });
@@ -99,9 +100,10 @@ export async function getDebts(req, res) {
       return res.status(404).send({ msg: 'Event not found.' });
     }
     const debts = await debtsService.calculateDebts(event);
-    if (!debts) return res.send({ msg: 'No debts to show' });
-    if (debts.length) return res.send({ msg: 'success', debts });
-    return res.send({ msg: 'No debts to show.' });
+    const percentages = await eventService.getPercentages(event);
+    if (!debts) return res.send({ msg: 'No debts to show', percentages });
+    if (debts.length) return res.send({ msg: 'success', debts, percentages });
+    return res.send({ msg: 'No debts to show.', percentages });
   } catch (error) {
     return res.status(400).send({ error });
   }
