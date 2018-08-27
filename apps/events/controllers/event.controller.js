@@ -171,10 +171,12 @@ export async function searchEvents(req, res) {
 
 export async function getHistory(req, res) {
   const { id } = req.params;
+  const { page } = req.params || 1;
   try {
     const event = await eventService.findEventById(id);
-    const history = await eventService.getHistory(event);
-    return res.send({ history });
+    const history = await eventService.getHistory(page, event);
+    if (history.length) return res.send({ history });
+    return res.send({ msg: 'No activity to show' });
   } catch (error) {
     res.status(400).send({ error });
   }

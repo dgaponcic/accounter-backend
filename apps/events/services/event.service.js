@@ -300,7 +300,17 @@ export async function getPercentages(event) {
   return percentages;
 }
 
-export async function getHistory(event) {
+async function historyLength(event) {
+  const history = await History.find({ event });
+  return history.length;
+}
+
+export async function getHistory(page, event) {
+  const limit = 2;
+  const pages = Math.ceil(await historyLength(event) / limit);
+  let skip = 0;
+  if (pages > 0) skip = (page - 1) * limit;
+  if (page > pages) page = pages;
   const history = await History.find({ event })
   .populate('actor', 'username')
   .populate({
@@ -314,6 +324,8 @@ export async function getHistory(event) {
     select: 'username',
     model: 'User',
   })
-  .sort({ createdAt: -1 });
+  .sort({ createdAt: -1 })
+  .skip(skip)
+  .limit(limit);
   return history;
 }
