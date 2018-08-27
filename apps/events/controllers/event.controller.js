@@ -115,7 +115,7 @@ export async function updateEvent(req, res) {
   try {
     const oldEvent = await eventService.findEventByIdAndPopulate(id, 'participants');
     event.spendings = oldEvent.spendings;
-    const response = await eventService.updateEvent(event, oldEvent);
+    const response = await eventService.updateEvent(req.user, event, oldEvent);
     if (response.updated === false && response.msg === 'spendings') {
       return res.status(400).send({
         msg: 'You can not delete the users. They have already participated to spendings.',

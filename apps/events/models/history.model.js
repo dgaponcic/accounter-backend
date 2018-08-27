@@ -8,10 +8,13 @@ const HistorySchema = Schema({
     actor: { type: mongoose.Schema.ObjectId, ref: 'User', required: true },
     to: { type: mongoose.Schema.ObjectId, ref: 'User', refPath: 'User' },
     object: {
-        type: { type: String, required: true },
+        type: { type: String },
         object: { type: mongoose.Schema.ObjectId, refPath: 'object.type' },
+        name: { type: String },
     },
     createdAt: { type: Date, default: Date.now },
+    participants: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
+    adverb: { type: String },
 });
 
 export default mongoose.model('History', HistorySchema);

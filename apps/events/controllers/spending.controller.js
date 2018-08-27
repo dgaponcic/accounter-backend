@@ -45,6 +45,9 @@ export async function createSpending(req, res) {
     );
     return res.status(201).send({ msg: 'success' });
   } catch (error) {
+    if (error.name === 'CastError') {
+      return res.status(400).send({ msg: 'Not Found' });
+    }
     return res.status(400).send(error);
   }
 }
@@ -100,7 +103,7 @@ export async function updateSpending(req, res) {
     );
     const check = spendingService.checkSpending(event, oldSpending);
     if (!check) return res.status(404).send({ msg: 'Not Found.' });
-    await spendingService.updateSpending(spending, oldSpending);
+    await spendingService.updateSpending(spending, oldSpending, req.user, event);
     return res.send({ updated: true });
   } catch (error) {
     if (error.name === 'CastError') {
@@ -117,7 +120,7 @@ export async function deleteSpending(req, res) {
     const spending = await spendingService.findSpendingById(spendingId);
     const check = spendingService.checkSpending(event, spending);
     if (!check) return res.status(404).send({ msg: 'Not Found.' });
-    await spendingService.deleteSpending(spending, event);
+    await spendingService.deleteSpending(req.user, spending, event);
     return res.send({ msg: 'Deleted.' });
   } catch (error) {
     if (error.name === 'CastError') {

@@ -11,15 +11,16 @@ export async function createEventToken(event) {
   return event.token.invitationToken;
 }
 
-async function addActivity(actor, verb, objectType, object, event) {
-  if (!event) event = object;
-  object = { type: objectType, object };
+export async function addActivity(actor, verb, object, event, participants, adverb) {
+  if (!event) event = object.object;
   const history = new History({
     event,
     actor,
     verb,
     object,
   });
+  if (participants) history.participants = participants;
+  if (adverb) history.adverb = adverb;
   await history.save();
 }
 
@@ -35,7 +36,8 @@ export async function createNewEvent(name, startAt, finishAt, user) {
   // Add the event to the user
   await user.addEvent(event);
   await event.save();
-  await addActivity(user, 'created', 'Event', event);
+  const object = { type: 'Event', object: event, name: event.name };
+  await addActivity(user, 'created', object);
   return createEventToken(event);
 }
 
@@ -63,7 +65,8 @@ export async function addPeople(event, user) {
     await event.addParticipants('participant', user);
     // Add the event to user
     await user.addEvent(event);
-    await addActivity(user, 'joined', 'Event', event);
+    const object = { type: 'Event', object: event, name: event.name };
+    await addActivity(user, 'joined', object);
   }
 }
 
@@ -100,7 +103,15 @@ export async function addNewSpending(type, event, name, price, payers, consumers
   // Add the spending and participants to event
   await Promise.all([spending.save(), event.addSpendings(spending)]);
   // event = await findEventById(event.id);
-  await addActivity(user, 'added', 'Spending', spending, event);
+  if (type === 'spending') {
+    const object = { type: 'Spending', object: spending, name: spending.name };
+    await addActivity(user, 'added', object, event);
+  }
+  if (type === 'payment') {
+    const object = { object: null, name: price };
+    const userConsumer = await User.findById(consumers[0]);
+    await addActivity(user, 'gave', object, event, [userConsumer]);
+  }
   return spending;
 }
 
@@ -175,11 +186,6 @@ function checkIfIsParticipant(spending, participants) {
 }
 
 async function checkUsers(event, participants) {
-  // const debts = await debtsService.initializeDebtsCalculation(event);
-  // return participants.filter(async (participant) => {
-  //   const { username } = participant.participant;
-  //   return (debts[username] !== 0);
-  // });
   if (!event.spendings.length) return false;
   const { spendings } = event;
   const isParticipant = spendings.some((spending) => {
@@ -189,6 +195,7 @@ async function checkUsers(event, participants) {
 }
 
 function addedAndRemovedParticipants(newEvent, oldEvent) {
+  if (!newEvent.participants) newEvent.participants = [];
   const newEventParticipants = toArray(newEvent.participants);
   const oldEventParticipants = [];
   const removedParticipants = oldEvent.participants.filter((participant) => {
@@ -205,33 +212,54 @@ function addedAndRemovedParticipants(newEvent, oldEvent) {
 }
 
 // Add event to participant
-async function addParticipantsUpdate(addedParticipants, oldEvent) {
-  addedParticipants.forEach(async (participant) => {
+async function addParticipantsUpdate(actor, addedParticipants, oldEvent) {
+  let participants = addedParticipants.map(async (participant) => {
     const user = await userService.findUserById(participant);
     await user.addEvent(oldEvent);
+    return user;
   });
+  participants = await Promise.all(participants);
+  const object = { type: 'Event', object: oldEvent, name: oldEvent.name };
+  addActivity(actor, 'added', object, oldEvent, participants, 'to');
 }
 
 // Remove event from participant
-async function removeParticipantsUpdate(removedParticipants, oldEvent) {
-  removedParticipants.forEach(async (participant) => {
+async function removeParticipantsUpdate(actor, removedParticipants, oldEvent) {
+  let userActor;
+  let participants = removedParticipants.map(async (participant) => {
     const user = await userService.findUserById(participant.participant);
+    if (actor.username !== user.username) {
+      user.deleteEvent(oldEvent._id);
+      return user;
+    }
     user.deleteEvent(oldEvent._id);
+    userActor = user;
   });
+  participants = await Promise.all(participants);
+  if (participants.length) {
+    const object = { type: 'Event', object: oldEvent, name: oldEvent.name };
+    addActivity(actor, 'deleted', object, oldEvent, participants, 'from');
+  }
+  if (userActor) {
+    const object = { type: 'Event', object: oldEvent, name: oldEvent.name };
+    addActivity(actor, 'left', object);
+  }
 }
 
-export async function updateEvent(newEvent, oldEvent) {
+export async function updateEvent(user, newEvent, oldEvent) {
   const participantsDiff = addedAndRemovedParticipants(newEvent, oldEvent);
   const { removedParticipants, addedParticipants } = participantsDiff;
   if (addedParticipants.length) {
-    await addParticipantsUpdate(addedParticipants, oldEvent);
+    await addParticipantsUpdate(user, addedParticipants, oldEvent);
   }
     const checkedUsers = await checkUsers(oldEvent, removedParticipants);
     if (checkedUsers) {
       return { msg: 'spendings', updated: false };
     }
-    await removeParticipantsUpdate(removedParticipants, oldEvent);
+  await removeParticipantsUpdate(user, removedParticipants, oldEvent);
+  const object = { type: 'Event', object: oldEvent, name: oldEvent.name };
   const event = await Event.findByIdAndUpdate({ _id: oldEvent._id }, newEvent);
+  addActivity(user, 'updated', object);
   await event.save();
   return { msg: 'success', updated: true };
 }
@@ -268,7 +296,6 @@ export async function searchEvents(query) {
 }
 
 export async function getPercentages(event) {
-  // let percentages = await debtsService.initializeDebts(event);
   const percentages = await debtsService.getPercentages(event.spendings, event);
   return percentages;
 }
@@ -281,7 +308,12 @@ export async function getHistory(event) {
     select: 'name',
     model: 'object.type',
   })
-  .populate('to', 'username')
+  // .populate('to', 'username')
+  .populate({
+    path: 'participants',
+    select: 'username',
+    model: 'User',
+  })
   .sort({ createdAt: -1 });
   return history;
 }
