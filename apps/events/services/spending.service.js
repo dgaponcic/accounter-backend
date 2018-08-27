@@ -65,6 +65,7 @@ export async function updateSpending(newSpending, oldSpending, user, event) {
   // Add participants to spending
   if (filteredPayers) await eventService.addParticipants(filteredPayers, 'payer', spending);
   if (filteredConsumers) await eventService.addParticipants(filteredConsumers, 'consumer', spending);
+  // Add activity to history
   const object = { type: 'Spending', object: spending, name: spending.name };
   eventService.addActivity(user, 'updated', object, event);
   await spending.save();
@@ -77,6 +78,7 @@ export async function deleteSpending(user, spending, event) {
   await Spending.findByIdAndRemove(spending._id);
 }
 
+// Search a spending by name by query
 export async function searchSpendings(event, query) {
   const spendingsIds = event.spendings;
   const limit = 10;

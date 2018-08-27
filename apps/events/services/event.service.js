@@ -3,7 +3,6 @@ import Spending from '../models/spending.model';
 import User from '../../users/models/user.model';
 import History from '../models/history.model';
 import * as userService from '../../users/services/user.service';
-import * as debtsService from './debts.service';
 
 // Generate the invitation token
 export async function createEventToken(event) {
@@ -11,6 +10,7 @@ export async function createEventToken(event) {
   return event.token.invitationToken;
 }
 
+// Add activity to history
 export async function addActivity(actor, verb, object, event, participants, adverb) {
   if (!event) event = object.object;
   const history = new History({
@@ -85,6 +85,17 @@ function filterParticipants(event, participants) {
     return filteredParticipants;
 }
 
+async function addPaymentActivity(spending, consumer, user, event) {
+  const object = { object: null, name: spending.price };
+  const userConsumer = await User.findById(consumer);
+  await addActivity(user, 'gave', object, event, [userConsumer]);
+}
+
+async function addSpendingActivity(spending, event, user) {
+  const object = { type: 'Spending', object: spending, name: spending.name };
+  await addActivity(user, 'added', object, event);
+}
+
 // Add participants to the spending
 export function addParticipants(participants, type, spending) {
   participants.map(participant => spending.addParticipant(type, participant));
@@ -102,16 +113,9 @@ export async function addNewSpending(type, event, name, price, payers, consumers
   // Calculate debts
   // Add the spending and participants to event
   await Promise.all([spending.save(), event.addSpendings(spending)]);
-  // event = await findEventById(event.id);
-  if (type === 'spending') {
-    const object = { type: 'Spending', object: spending, name: spending.name };
-    await addActivity(user, 'added', object, event);
-  }
-  if (type === 'payment') {
-    const object = { object: null, name: price };
-    const userConsumer = await User.findById(consumers[0]);
-    await addActivity(user, 'gave', object, event, [userConsumer]);
-  }
+  // Add activity history
+  if (type === 'spending') await addSpendingActivity(spending, event, user);
+  if (type === 'payment') await addPaymentActivity(spending, consumers[0], user, event);
   return spending;
 }
 
@@ -223,6 +227,19 @@ async function addParticipantsUpdate(actor, addedParticipants, oldEvent) {
   addActivity(actor, 'added', object, oldEvent, participants, 'to');
 }
 
+// Add activity hor the removes participants
+function removedParticipantsActivity(actor, event, participants, userActor) {
+  if (participants.length) {
+    const object = { type: 'Event', object: event, name: event.name };
+    addActivity(actor, 'deleted', object, event, participants, 'from');
+  }
+  // If user left the event
+  if (userActor) {
+    const object = { type: 'Event', object: event, name: event.name };
+    addActivity(actor, 'left', object);
+  }
+}
+
 // Remove event from participant
 async function removeParticipantsUpdate(actor, removedParticipants, oldEvent) {
   let userActor;
@@ -236,14 +253,7 @@ async function removeParticipantsUpdate(actor, removedParticipants, oldEvent) {
     userActor = user;
   });
   participants = await Promise.all(participants);
-  if (participants.length) {
-    const object = { type: 'Event', object: oldEvent, name: oldEvent.name };
-    addActivity(actor, 'deleted', object, oldEvent, participants, 'from');
-  }
-  if (userActor) {
-    const object = { type: 'Event', object: oldEvent, name: oldEvent.name };
-    addActivity(actor, 'left', object);
-  }
+  removedParticipantsActivity(actor, oldEvent, participants, userActor);
 }
 
 export async function updateEvent(user, newEvent, oldEvent) {
@@ -295,11 +305,6 @@ export async function searchEvents(query) {
   return events;
 }
 
-export async function getPercentages(event) {
-  const percentages = await debtsService.getPercentages(event.spendings, event);
-  return percentages;
-}
-
 async function historyLength(event) {
   const history = await History.find({ event });
   return history.length;
@@ -318,7 +323,6 @@ export async function getHistory(page, event) {
     select: 'name',
     model: 'object.type',
   })
-  // .populate('to', 'username')
   .populate({
     path: 'participants',
     select: 'username',

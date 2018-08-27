@@ -100,7 +100,7 @@ export async function getDebts(req, res) {
       return res.status(404).send({ msg: 'Event not found.' });
     }
     const debts = await debtsService.calculateDebts(event);
-    const percentages = await eventService.getPercentages(event);
+    const percentages = await debts.getPercentages(event);
     if (!debts) return res.send({ msg: 'No debts to show', percentages });
     if (debts.length) return res.send({ msg: 'success', debts, percentages });
     return res.send({ msg: 'No debts to show.', percentages });
