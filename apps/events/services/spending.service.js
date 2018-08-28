@@ -17,27 +17,27 @@ export async function findSpendingByIdAndPopulate(id) {
 }
 
 // Check if the spending belongs to event
-export async function checkSpending(event, spending) {
-  if (spending in event.spendings) return true;
-  return false;
+export function checkSpending(event, spending) {
+  let check = false;
+  event.spendings.forEach((item) => {
+    if (String(item._id) === String(spending._id)) check = true;
+  });
+  return check;
 }
 
 async function getSpending(spendingsId, page) {
   const limit = 2;
   const pages = Math.ceil(spendingsId.length / limit);
-  let skip = 0;
-  if (pages > 0) skip = (page - 1) * limit;
-  if (page > pages) page = pages;
-// Find spendings by id and return their name
-  const spendings = await Spending.find(
-    { _id: { $in: spendingsId }, type: 'spending' },
-    { name: 1, _id: 1, type: 1 },
-  )
-  .sort()
-  .skip(skip)
-  .limit(limit);
+  const query = { _id: { $in: spendingsId }, type: 'spending' };
+  const options = {
+    sort: '-createdAt',
+    select: 'name',
+    limit,
+    page,
+  };
+  const spendings = await Spending.paginate(query, options);
   return {
-    spendings,
+    spendings: spendings.docs,
     pages,
   };
 }
@@ -54,7 +54,7 @@ function filterParticipants(participants) {
   return filteredParticipants;
 }
 
-export async function updateSpending(newSpending, oldSpending) {
+export async function updateSpending(newSpending, oldSpending, user, event) {
   newSpending.participants = [];
   const spending = await Spending.findByIdAndUpdate({ _id: oldSpending._id }, newSpending);
   const filteredPayers = filterParticipants(newSpending.payers);
@@ -62,14 +62,20 @@ export async function updateSpending(newSpending, oldSpending) {
   // Add participants to spending
   if (filteredPayers) await eventService.addParticipants(filteredPayers, 'payer', spending);
   if (filteredConsumers) await eventService.addParticipants(filteredConsumers, 'consumer', spending);
+  // Add activity to history
+  const object = { type: 'Spending', object: spending, name: spending.name };
+  eventService.addActivity(user, 'updated', object, event);
   await spending.save();
 }
 
-export async function deleteSpending(spending, event) {
+export async function deleteSpending(user, spending, event) {
   await event.deleteSpending(spending);
+  const object = { type: 'Spending', object: spending, name: spending.name };
+  await eventService.addActivity(user, 'deleted', object, event);
   await Spending.findByIdAndRemove(spending._id);
 }
 
+// Search a spending by name by query
 export async function searchSpendings(event, query) {
   const spendingsIds = event.spendings;
   const limit = 10;
