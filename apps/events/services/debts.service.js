@@ -9,6 +9,20 @@ function count(spending, type) {
   return participants;
 }
 
+function findMaxKey(object) {
+	const maxKey = Object.keys(object).reduce((prev, current) => {
+		return (object[prev] < object[current]) ? prev : current;
+	});
+	return maxKey;
+}
+
+function findMinKey(object) {
+	const minKey = Object.keys(object).reduce((prev, current) => {
+		return (object[prev] > object[current]) ? prev : current;
+	});
+	return minKey;
+}
+
 function roundDebts(debts) {
 	const normalizeSum = {};
 	Object.keys(debts).forEach((key) => {
@@ -19,15 +33,11 @@ function roundDebts(debts) {
 		return total + value;
 	});
 	if (sum < 0) {
-		const key = Object.keys(normalizeSum).reduce((prev, current) => {
-			return (normalizeSum[prev] > normalizeSum[current]) ? prev : current;
-		});
+		const key = findMinKey(normalizeSum);
 		debts[key] -= sum;
 	}
 	if (sum > 0) {
-		const key = Object.keys(normalizeSum).reduce((prev, current) => {
-			return (normalizeSum[prev] < normalizeSum[current]) ? prev : current;
-		});
+		const key = findMaxKey(normalizeSum);
 		debts[key] -= sum;
 	}
 	return debts;
@@ -173,9 +183,22 @@ function amountPerSpending(spending, percentages) {
 }
 
 function calculatePercentage(percentages, sum) {
+	const findExtreme = {};
+	let percentagesSum = 0;
 	Object.keys(percentages).forEach((key) => {
-		percentages[key] = Math.round(percentages[key] / sum * 100);
+		const percentage = percentages[key] / sum * 100;
+		findExtreme[key] = percentage - Math.round(percentage);
+		percentages[key] = Math.round(percentage);
+		percentagesSum += Math.round(percentage);
 	});
+	if (percentagesSum > 100) {
+		const maxKey = findMaxKey(findExtreme);
+		percentages[maxKey] -= (percentagesSum - 100);
+	}
+	if (percentagesSum < 100) {
+		const minKey = findMinKey(findExtreme);
+		percentages[minKey] += (percentagesSum - 100);
+	}
 	return percentages;
 }
 
