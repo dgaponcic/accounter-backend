@@ -152,6 +152,7 @@ export async function allEvents(events, page) {
   };
 }
 
+// Find all event where the user is author
 export async function allEventsByAuthor(events, page, user) {
   const limit = 10;
   const pages = Math.ceil(events.length / limit);
@@ -183,6 +184,8 @@ async function calculateEventsDebts(events, user) {
   return eventsWithDebts;
 }
 
+// Filter the events with debts
+// Sort the events based on the debts in descending order
 function sortDebtsEvents(eventsWithDebts) {
   eventsWithDebts = eventsWithDebts.filter((event) => {
     return event.debts !== 0;
@@ -192,6 +195,7 @@ function sortDebtsEvents(eventsWithDebts) {
   return eventsWithDebts;
 }
 
+// Find all events where user has debts
 export async function allEventsWithDebts(events, page, user) {
   const limit = 2;
   events = await Event.find({ _id: { $in: events } });

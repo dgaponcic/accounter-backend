@@ -69,9 +69,11 @@ export async function allEvents(req, res) {
     // Populate events
     let results = null;
     if (sort === 'author') {
+      // All events where user is author
       results = await eventService.allEventsByAuthor(user.events, page, user);
     }
     if (sort === 'debts') {
+      // All events where user has debts
       results = await eventService.allEventsWithDebts(user.events, page, user);
     }
     if (!sort) {
