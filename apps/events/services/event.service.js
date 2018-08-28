@@ -152,6 +152,25 @@ export async function allEvents(events, page) {
   };
 }
 
+export async function allEventsByAuthor(events, page, user) {
+  const limit = 10;
+  const pages = Math.ceil(events.length / limit);
+  const options = {
+    page,
+    sort: '-createdAt',
+    limit: 10,
+    select: 'name',
+  };
+  const query = {
+    _id: { $in: events },
+    participants: {
+      $elemMatch: { typeOfParticipant: 'author', participant: user._id } 
+    },
+  };
+  events = await Event.paginate(query, options);
+  return { events: events.docs, pages };
+}
+
 export function checkUser(to, from, user) {
   if (user.id !== to && user.id !== from) return false;
   return true;
