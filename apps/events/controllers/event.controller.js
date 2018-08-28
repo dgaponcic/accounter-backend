@@ -175,7 +175,7 @@ export async function getHistory(req, res) {
   try {
     const event = await eventService.findEventById(id);
     const history = await eventService.getHistory(page, event);
-    if (history.length) return res.send({ history });
+    if (history.docs.length) return res.send({ history: history.docs });
     return res.send({ msg: 'No activity to show' });
   } catch (error) {
     res.status(400).send({ error });

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import mongoosePaginate from 'mongoose-paginate';
 
 const { Schema } = mongoose;
 
@@ -16,5 +17,7 @@ const HistorySchema = Schema({
     participants: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
     adverb: { type: String },
 });
+
+HistorySchema.plugin(mongoosePaginate);
 
 export default mongoose.model('History', HistorySchema);

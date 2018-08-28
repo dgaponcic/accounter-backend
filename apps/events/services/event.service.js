@@ -305,31 +305,17 @@ export async function searchEvents(query) {
   return events;
 }
 
-async function historyLength(event) {
-  const history = await History.find({ event });
-  return history.length;
-}
-
 export async function getHistory(page, event) {
-  const limit = 2;
-  const pages = Math.ceil(await historyLength(event) / limit);
-  let skip = 0;
-  if (pages > 0) skip = (page - 1) * limit;
-  if (page > pages) page = pages;
-  const history = await History.find({ event })
-  .populate('actor', 'username')
-  .populate({
-    path: 'object.object',
-    select: 'name',
-    model: 'object.type',
-  })
-  .populate({
-    path: 'participants',
-    select: 'username',
-    model: 'User',
-  })
-  .sort({ createdAt: -1 })
-  .skip(skip)
-  .limit(limit);
+  const options = {
+    sort: '-createdAt',
+    page,
+    limit: 5,
+    populate: [
+      { path: 'actor', select: 'username' },
+      { path: 'object.object', select: 'name', model: 'object.type' },
+      { path: 'participants', select: 'username', model: 'User' },
+    ],
+  };
+  const history = await History.paginate({ event }, options);
   return history;
 }
