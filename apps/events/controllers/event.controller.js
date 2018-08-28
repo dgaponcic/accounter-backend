@@ -72,6 +72,11 @@ export async function allEvents(req, res) {
       const { events, pages } = results;
       if (events.length) return res.send({ msg: 'success', events, pages });
     }
+    if (sort === 'debts') {
+      const results = await eventService.allEventsWithDebts(user.events, page, user);
+      const { events, pages } = results;
+      if (events.length) return res.send({ msg: 'success', events, pages });
+    }
     if (!sort) {
       const results = await eventService.allEvents(user.events, page);
       const { events, pages } = results;

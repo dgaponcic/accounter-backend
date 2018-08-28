@@ -171,6 +171,42 @@ export async function allEventsByAuthor(events, page, user) {
   return { events: events.docs, pages };
 }
 
+async function calculateEventsDebts(events, user) {
+  let eventsWithDebts = events.map(async (event) => {
+    event = await findEventByIdAndPopulate(event);
+    const debts = await debtsService.initializeDebtsCalculation(event);
+    let userDebt = 0;
+    if (debts && debts[user.username] !== 0) userDebt = debts[user.username];
+    return {
+      debts: userDebt,
+      event: { _id: event._id, name: event.name },
+    };
+  });
+  eventsWithDebts = await Promise.all(eventsWithDebts);
+  return eventsWithDebts;
+}
+
+function SortDebtsEvents(eventsWithDebts) {
+  eventsWithDebts = eventsWithDebts.filter((event) => {
+    return event.debts !== 0;
+  }).sort((prev, next) => {
+    return prev.debt - next.debt;
+  });
+  return eventsWithDebts;
+}
+
+export async function allEventsWithDebts(events, page, user) {
+  const limit = 2;
+  events = await Event.find({ _id: { $in: events } });
+  let eventsWithDebts = await calculateEventsDebts(events, user);
+  eventsWithDebts = SortDebtsEvents(eventsWithDebts);
+  const pages = Math.ceil(eventsWithDebts.length / limit);
+  let skip = 0;
+  if (pages > 0) skip = (page - 1) * limit;
+  if (page > pages) page = pages;
+  return { events: eventsWithDebts.slice(skip, skip + limit), pages };
+}
+
 export function checkUser(to, from, user) {
   if (user.id !== to && user.id !== from) return false;
   return true;
