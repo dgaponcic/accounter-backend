@@ -108,15 +108,20 @@ export async function addNewSpending(type, event, name, price, payers, consumers
   const filteredPayers = filterParticipants(event, payers);
   const filteredConsumers = filterParticipants(event, consumers);
   // Add participants to spending
-  if (filteredPayers) addParticipants(filteredPayers, 'payer', spending);
-  if (filteredConsumers) addParticipants(filteredConsumers, 'consumer', spending);
+  if (!filteredConsumers.length || !filteredConsumers.length) {
+    return { created: false };
+  // if (filteredPayers) addParticipants(filteredPayers, 'payer', spending);
+  // if (filteredConsumers) addParticipants(filteredConsumers, 'consumer', spending);
+  }
+  addParticipants(filteredPayers, 'payer', spending);
+  addParticipants(filteredConsumers, 'consumer', spending);
   // Calculate debts
   // Add the spending and participants to event
   await Promise.all([spending.save(), event.addSpendings(spending)]);
   // Add activity history
   if (type === 'spending') await addSpendingActivity(spending, event, user);
   if (type === 'payment') await addPaymentActivity(spending, consumers[0], user, event);
-  return spending;
+  return { created: true };
 }
 
 export async function findEventByIdAndPopulate(id, fieldToPopulate, type) {

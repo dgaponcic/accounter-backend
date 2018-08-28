@@ -34,7 +34,7 @@ export async function createSpending(req, res) {
     const event = await eventService.findEventById(id);
     if (!event) return res.status(404).send({ msg: 'Not Found.' });
     // Add new spending to event
-    await eventService.addNewSpending(
+    const response = await eventService.addNewSpending(
       type,
       event,
       name,
@@ -43,6 +43,7 @@ export async function createSpending(req, res) {
       consumers,
       req.user,
     );
+    if (!response.created) return res.status(400).send({ msg: 'Invalid participants' });
     return res.status(201).send({ msg: 'success' });
   } catch (error) {
     if (error.name === 'CastError') {
