@@ -64,11 +64,25 @@ export async function joinEvent(req, res) {
 export async function allEvents(req, res) {
   const { user } = req;
   const page = req.params.page || 1;
+  const { sort } = req.query || null;
   try {
     // Populate events
-    const results = await eventService.allEvents(user.events, page);
-    const { events, pages } = results;
-    if (events.length) return res.send({ msg: 'success', events, pages });
+    let results = null;
+    if (sort === 'author') {
+      // All events where user is author
+      results = await eventService.allEventsByAuthor(user.events, page, user);
+    }
+    if (sort === 'debts') {
+      // All events where user has debts
+      results = await eventService.allEventsWithDebts(user.events, page, user);
+    }
+    if (!sort) {
+      results = await eventService.allEvents(user.events, page);
+    }
+    if (results) {
+      const { events, pages } = results;
+      if (events.length) return res.send({ msg: 'success', events, pages });
+    }
     return res.send({ msg: 'No events to show.' });
   } catch (error) {
     return res.status(400).send({ msg: error });

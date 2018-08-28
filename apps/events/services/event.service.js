@@ -171,6 +171,62 @@ export async function allEvents(events, page) {
   };
 }
 
+// Find all event where the user is author
+export async function allEventsByAuthor(events, page, user) {
+  const limit = 10;
+  const pages = Math.ceil(events.length / limit);
+  const options = {
+    page,
+    sort: '-createdAt',
+    limit: 10,
+    select: 'name',
+  };
+  const query = {
+    _id: { $in: events },
+    participants: {
+      $elemMatch: { typeOfParticipant: 'author', participant: user._id } 
+    },
+  };
+  events = await Event.paginate(query, options);
+  return { events: events.docs, pages };
+}
+
+async function calculateEventsDebts(events, user) {
+  let eventsWithDebts = events.map(async (event) => {
+    event = await findEventByIdAndPopulate(event);
+    const debts = await debtsService.initializeDebtsCalculation(event);
+    let userDebt = 0;
+    if (debts && debts[user.username] !== 0) userDebt = debts[user.username];
+    return { debts: userDebt, event: { _id: event._id, name: event.name } };
+  });
+  eventsWithDebts = await Promise.all(eventsWithDebts);
+  return eventsWithDebts;
+}
+
+// Filter the events with debts
+// Sort the events based on the debts in descending order
+function sortDebtsEvents(eventsWithDebts) {
+  eventsWithDebts = eventsWithDebts.filter((event) => {
+    return event.debts !== 0;
+  }).sort((prev, next) => {
+    return prev.debt - next.debt;
+  });
+  return eventsWithDebts;
+}
+
+// Find all events where user has debts
+export async function allEventsWithDebts(events, page, user) {
+  const limit = 2;
+  events = await Event.find({ _id: { $in: events } });
+  let eventsWithDebts = await calculateEventsDebts(events, user);
+  eventsWithDebts = sortDebtsEvents(eventsWithDebts);
+  const pages = Math.ceil(eventsWithDebts.length / limit);
+  let skip = 0;
+  if (pages > 0) skip = (page - 1) * limit;
+  if (page > pages) page = pages;
+  return { events: eventsWithDebts.slice(skip, skip + limit), pages };
+}
+
 export function checkUser(to, from, user) {
   if (user.id !== to && user.id !== from) return false;
   return true;
