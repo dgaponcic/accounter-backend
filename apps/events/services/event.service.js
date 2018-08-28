@@ -183,7 +183,7 @@ async function calculateEventsDebts(events, user) {
   return eventsWithDebts;
 }
 
-function SortDebtsEvents(eventsWithDebts) {
+function sortDebtsEvents(eventsWithDebts) {
   eventsWithDebts = eventsWithDebts.filter((event) => {
     return event.debts !== 0;
   }).sort((prev, next) => {
@@ -196,7 +196,7 @@ export async function allEventsWithDebts(events, page, user) {
   const limit = 2;
   events = await Event.find({ _id: { $in: events } });
   let eventsWithDebts = await calculateEventsDebts(events, user);
-  eventsWithDebts = SortDebtsEvents(eventsWithDebts);
+  eventsWithDebts = sortDebtsEvents(eventsWithDebts);
   const pages = Math.ceil(eventsWithDebts.length / limit);
   let skip = 0;
   if (pages > 0) skip = (page - 1) * limit;

@@ -67,18 +67,17 @@ export async function allEvents(req, res) {
   const { sort } = req.query || null;
   try {
     // Populate events
+    let results = null;
     if (sort === 'author') {
-      const results = await eventService.allEventsByAuthor(user.events, page, user);
-      const { events, pages } = results;
-      if (events.length) return res.send({ msg: 'success', events, pages });
+      results = await eventService.allEventsByAuthor(user.events, page, user);
     }
     if (sort === 'debts') {
-      const results = await eventService.allEventsWithDebts(user.events, page, user);
-      const { events, pages } = results;
-      if (events.length) return res.send({ msg: 'success', events, pages });
+      results = await eventService.allEventsWithDebts(user.events, page, user);
     }
     if (!sort) {
-      const results = await eventService.allEvents(user.events, page);
+      results = await eventService.allEvents(user.events, page);
+    }
+    if (results) {
       const { events, pages } = results;
       if (events.length) return res.send({ msg: 'success', events, pages });
     }
