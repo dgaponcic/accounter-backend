@@ -177,10 +177,7 @@ async function calculateEventsDebts(events, user) {
     const debts = await debtsService.initializeDebtsCalculation(event);
     let userDebt = 0;
     if (debts && debts[user.username] !== 0) userDebt = debts[user.username];
-    return {
-      debts: userDebt,
-      event: { _id: event._id, name: event.name },
-    };
+    return { debts: userDebt, event: { _id: event._id, name: event.name } };
   });
   eventsWithDebts = await Promise.all(eventsWithDebts);
   return eventsWithDebts;
