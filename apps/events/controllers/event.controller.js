@@ -100,7 +100,7 @@ export async function getDebts(req, res) {
       return res.status(404).send({ msg: 'Event not found.' });
     }
     const debts = await debtsService.calculateDebts(event);
-    const percentages = await eventService.getPercentages(event);
+    const percentages = await debtsService.getPercentages(event.spendings, event);
     if (!debts) return res.send({ msg: 'No debts to show', percentages });
     if (debts.length) return res.send({ msg: 'success', debts, percentages });
     return res.send({ msg: 'No debts to show.', percentages });
@@ -115,7 +115,7 @@ export async function updateEvent(req, res) {
   try {
     const oldEvent = await eventService.findEventByIdAndPopulate(id, 'participants');
     event.spendings = oldEvent.spendings;
-    const response = await eventService.updateEvent(event, oldEvent);
+    const response = await eventService.updateEvent(req.user, event, oldEvent);
     if (response.updated === false && response.msg === 'spendings') {
       return res.status(400).send({
         msg: 'You can not delete the users. They have already participated to spendings.',
@@ -171,10 +171,13 @@ export async function searchEvents(req, res) {
 
 export async function getHistory(req, res) {
   const { id } = req.params;
+  const { page } = req.params || 1;
   try {
     const event = await eventService.findEventById(id);
-    const history = await eventService.getHistory(event);
-    return res.send({ history });
+    const results = await eventService.getHistory(page, event);
+    const { history, pages } = results;
+    if (history.length) return res.send({ history, pages });
+    return res.send({ msg: 'No activity to show' });
   } catch (error) {
     res.status(400).send({ error });
   }

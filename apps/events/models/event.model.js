@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import mongoosePaginate from 'mongoose-paginate';
 import * as cryptoService from '../../../common/crypto.service';
 
 const { Schema } = mongoose;
@@ -45,5 +46,7 @@ EventSchema.methods.deleteSpending = async function (spending) {
   this.spendings.splice(index, 1);
   await this.save();
 };
+
+EventSchema.plugin(mongoosePaginate);
 
 export default mongoose.model('Event', EventSchema);
