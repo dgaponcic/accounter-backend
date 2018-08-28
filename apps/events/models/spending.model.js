@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-
+import mongoosePaginate from 'mongoose-paginate';
 const { Schema } = mongoose;
 
 // Define the spending schema
@@ -19,5 +19,7 @@ const SpendingSchema = Schema({
 SpendingSchema.methods.addParticipant = function (type, user) {
   this.participants.push({ type, participant: user });
 };
+
+SpendingSchema.plugin(mongoosePaginate);
 
 export default mongoose.model('Spending', SpendingSchema);

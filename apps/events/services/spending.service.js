@@ -28,19 +28,16 @@ export function checkSpending(event, spending) {
 async function getSpending(spendingsId, page) {
   const limit = 2;
   const pages = Math.ceil(spendingsId.length / limit);
-  let skip = 0;
-  if (pages > 0) skip = (page - 1) * limit;
-  if (page > pages) page = pages;
-// Find spendings by id and return their name
-  const spendings = await Spending.find(
-    { _id: { $in: spendingsId }, type: 'spending' },
-    { name: 1, _id: 1, type: 1 },
-  )
-  .sort()
-  .skip(skip)
-  .limit(limit);
+  const query = { _id: { $in: spendingsId }, type: 'spending' };
+  const options = {
+    sort: '-createdAt',
+    select: 'name',
+    limit,
+    page,
+  };
+  const spendings = await Spending.paginate(query, options);
   return {
-    spendings,
+    spendings: spendings.docs,
     pages,
   };
 }

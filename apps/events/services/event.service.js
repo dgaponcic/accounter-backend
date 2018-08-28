@@ -150,19 +150,18 @@ export async function findEventById(id) {
 export async function allEvents(events, page) {
   const limit = 2;
   const pages = Math.ceil(events.length / limit);
-  let skip = 0;
-  if (pages > 0) skip = (page - 1) * limit;
-  if (page > pages) page = pages;
-  events = await Event
-  .find(
-    { _id: { $in: events } },
-    { name: 1, _id: 1 },
-  )
-  .skip(skip)
-  .limit(limit)
-  .sort({ finishAt: 1 });
+
+  const query = { _id: { $in: events } };
+  const options = {
+    sort: '-finishAt',
+    select: 'name',
+    page,
+    limit,
+  };
+
+  events = await Event.paginate(query, options);
   return {
-    events,
+    events: events.docs,
     pages,
   };
 }
@@ -305,11 +304,18 @@ export async function searchEvents(query) {
   return events;
 }
 
+async function historyLength(event) {
+  const history = await History.find({ event });
+  return history.length;
+}
+
 export async function getHistory(page, event) {
+  const limit = 5;
+  const pages = Math.ceil(await historyLength(event) / limit);
   const options = {
     sort: '-createdAt',
     page,
-    limit: 5,
+    limit,
     populate: [
       { path: 'actor', select: 'username' },
       { path: 'object.object', select: 'name', model: 'object.type' },
@@ -317,5 +323,5 @@ export async function getHistory(page, event) {
     ],
   };
   const history = await History.paginate({ event }, options);
-  return history;
+  return { history: history.docs, pages };
 }
