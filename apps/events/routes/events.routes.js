@@ -116,4 +116,11 @@ route.get(
   EventController.getHistory,
 );
 
+route.get(
+  '/:id/history/page/:page',
+  passport.authenticate('jwt', { session: false }),
+  catchAsyncErrors(EventController.validateUser),
+  EventController.getHistory,
+);
+
 export default route;
