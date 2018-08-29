@@ -100,3 +100,21 @@ export async function resendConfirmation(req, res) {
     return res.status(400).send({ msg: error });
   }
 }
+
+export async function addFriend(req, res) {
+  const { id } = req.params;
+  try {
+    const addedUser = await userService.findUserById(id);
+    const isAdded = await userService.addFriend(req.user, addedUser);
+    if (addedUser.id === req.user.id) {
+      return res.status(400).send({ msg: 'Can not add yourself in friends.' });
+    }
+    if (isAdded) return res.send({ msg: 'added' });
+    return res.send({ msg: 'You are already friends' });
+  } catch (error) {
+    if (error.name === 'CastError') {
+      return res.status(400).send({ msg: 'Not Found' });
+    }
+    return res.status(400).send({ error });
+  }
+}

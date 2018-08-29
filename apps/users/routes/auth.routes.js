@@ -17,6 +17,12 @@ router.post('/login', UserController.validateLoginInput, UserController.login);
 
 router.get('/resend/:token', UserController.resendConfirmation);
 
+router.get(
+  '/add/friend/:id',
+  passport.authenticate('jwt', { session: false }),
+  UserController.addFriend,
+);
+
 router.post(
   '/reset',
   passport.authenticate('jwt', { session: false }),

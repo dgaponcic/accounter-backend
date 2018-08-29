@@ -25,6 +25,7 @@ const UserSchema = new Schema({
   isConfirmed: { type: Boolean, default: false },
   isActive: { type: Boolean, default: true },
   events: [{ type: mongoose.Schema.ObjectId, ref: 'Event' }],
+  friends: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
   tokens: [{
     type: { type: String },
     token: { type: String },
@@ -66,6 +67,11 @@ UserSchema.methods.createPassword = async function (password) {
 UserSchema.methods.deleteEvent = async function (eventId) {
   const index = this.events.indexOf(eventId);
   this.events.splice(index, 1);
+  await this.save();
+};
+
+UserSchema.methods.addFriend = async function (addedUser) {
+  this.friends.push(addedUser);
   await this.save();
 };
 

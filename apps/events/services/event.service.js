@@ -3,6 +3,7 @@ import Spending from '../models/spending.model';
 import User from '../../users/models/user.model';
 import History from '../models/history.model';
 import * as userService from '../../users/services/user.service';
+import * as debtsService from './debts.service';
 
 // Generate the invitation token
 export async function createEventToken(event) {
@@ -184,7 +185,7 @@ export async function allEventsByAuthor(events, page, user) {
   const query = {
     _id: { $in: events },
     participants: {
-      $elemMatch: { typeOfParticipant: 'author', participant: user._id } 
+      $elemMatch: { typeOfParticipant: 'author', participant: user._id },
     },
   };
   events = await Event.paginate(query, options);

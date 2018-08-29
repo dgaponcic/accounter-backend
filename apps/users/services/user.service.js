@@ -104,3 +104,17 @@ export async function resendEmail(user) {
   const url = `${process.env.registerURL}${token}`;
   mailService.sendConfirmationEmail(url, user.email);
 }
+
+async function checkIsFriend(user, addedUser) {
+  const friendsIDs = user.friends.map(x => String(x._id));
+  const isParticipant = friendsIDs.includes(String(addedUser.id));
+  return isParticipant;
+}
+
+export async function addFriend(user, addedUser) {
+  const isFriend = await checkIsFriend(user, addedUser);
+  if (isFriend) return false;
+  await user.addFriend(addedUser);
+  await addedUser.addFriend(user);
+  return true;
+}
