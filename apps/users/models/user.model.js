@@ -75,4 +75,10 @@ UserSchema.methods.addFriend = async function (addedUser) {
   await this.save();
 };
 
+UserSchema.methods.deleteFriend = async function (friend) {
+  const index = this.friends.indexOf(friend);
+  this.friends.splice(index, 1);
+  this.save();
+};
+
 export default mongoose.model('User', UserSchema);

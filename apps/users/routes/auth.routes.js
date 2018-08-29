@@ -23,6 +23,12 @@ router.get(
   UserController.addFriend,
 );
 
+router.delete(
+  '/friends/:id',
+  passport.authenticate('jwt', { session: false }),
+  UserController.deleteFriend,
+);
+
 router.post(
   '/reset',
   passport.authenticate('jwt', { session: false }),

@@ -105,7 +105,8 @@ export async function resendEmail(user) {
   mailService.sendConfirmationEmail(url, user.email);
 }
 
-async function checkIsFriend(user, addedUser) {
+// Check if users are already friends
+export async function checkIsFriend(user, addedUser) {
   const friendsIDs = user.friends.map(x => String(x._id));
   const isParticipant = friendsIDs.includes(String(addedUser.id));
   return isParticipant;
@@ -117,4 +118,9 @@ export async function addFriend(user, addedUser) {
   await user.addFriend(addedUser);
   await addedUser.addFriend(user);
   return true;
+}
+
+export async function deleteFriend(user, friend) {
+  await user.deleteFriend(friend);
+  await friend.deleteFriend(user);
 }

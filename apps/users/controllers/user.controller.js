@@ -118,3 +118,22 @@ export async function addFriend(req, res) {
     return res.status(400).send({ error });
   }
 }
+
+export async function deleteFriend(req, res) {
+  const { id } = req.params;
+  try {
+    const friend = await userService.findUserById(id);
+    if (friend.id === req.user.id) {
+      return res.status(400).send({ msg: 'Can not delete yourself.' });
+    }
+    const isFriend = await userService.checkIsFriend(req.user, friend);
+    if (!isFriend) return res.send({ msg: 'You are not friends.' });
+    await userService.deleteFriend(req.user, friend);
+    return res.send({ msg: 'Deleted.' });
+  } catch (error) {
+    if (error.name === 'CastError') {
+      return res.status(400).send({ msg: 'Not Found' });
+    }
+    return res.status(400).send({ error });
+  }
+}
