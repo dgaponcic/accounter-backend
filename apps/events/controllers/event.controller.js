@@ -49,6 +49,9 @@ export async function createEvent(req, res) {
     if (error.name === 'CastError') {
       return res.status(400).send({ msg: 'Not Found' });
     }
+    if (error.name === 'ValidationError') {
+      return res.status(400).send({ msg: 'Not Found' });
+    }
     return res.status(400).send({ msg: error });
   }
 }
