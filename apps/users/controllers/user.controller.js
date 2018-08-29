@@ -142,7 +142,7 @@ export async function allFriends(req, res) {
   const { page } = req.params || 1;
   try {
     const { friends, pages } = await userService.allFriends(req.user, page);
-    if (friends.length) return res.send({ friends, pages });
+    if (friends.length) return res.send({ friends, pages, msg: 'success' });
     return res.send({ msg: 'No friends to show.' });
   } catch (error) {
     return res.status(400).send({ error });

@@ -30,7 +30,7 @@ EventSchema.methods.createEventToken = async function () {
 };
 
 // Add participants to the event
-EventSchema.methods.addParticipants = async function (type, user) {
+EventSchema.methods.addParticipant = async function (type, user) {
   this.participants.push({ typeOfParticipant: type, participant: user });
   await this.save();
 };
@@ -44,6 +44,13 @@ EventSchema.methods.addSpendings = async function (spending) {
 EventSchema.methods.deleteSpending = async function (spending) {
   const index = this.spendings.indexOf(spending._id);
   this.spendings.splice(index, 1);
+  await this.save();
+};
+
+EventSchema.methods.addParticipants = async function (type, users) {
+  users.forEach((user) => {
+    this.participants.push({ typeOfParticipant: type, participant: user });
+  });
   await this.save();
 };
 

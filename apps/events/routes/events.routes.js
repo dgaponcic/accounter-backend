@@ -6,6 +6,7 @@ import catchAsyncErrors from '../../../settings/error.handler';
 
 const route = express.Router();
 
+route.get('/', passport.authenticate('jwt', { session: false }), EventController.allEvents);
 route.get('/page/:page', passport.authenticate('jwt', { session: false }), EventController.allEvents);
 
 route.get(
@@ -25,7 +26,7 @@ route.post(
   '/creation',
   passport.authenticate('jwt', { session: false }),
   EventController.validateEventCreation,
-  EventController.createEvent,
+  catchAsyncErrors(EventController.createEvent),
 );
 
 route.get(

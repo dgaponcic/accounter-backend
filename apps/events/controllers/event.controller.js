@@ -1,5 +1,6 @@
 import * as eventService from '../services/event.service';
 import * as debtsService from '../services/debts.service';
+import * as userService from '../../users/services/user.service';
 
 export async function validateUser(req, res, next) {
   const { user } = req;
@@ -32,13 +33,22 @@ export function validateEventCreation(req, res, next) {
 }
 
 export async function createEvent(req, res) {
-  const { name, startAt, finishAt } = req.body;
+  const { name, startAt, finishAt, participants } = req.body;
   const { user } = req;
   try {
     // Create a new event
-    const eventToken = await eventService.createNewEvent(name, startAt, finishAt, user);
+    const eventToken = await eventService.createNewEvent(
+      name,
+      startAt,
+      finishAt,
+      user,
+      participants,
+    );
     return res.status(201).send({ msg: 'success', eventToken });
   } catch (error) {
+    if (error.name === 'CastError') {
+      return res.status(400).send({ msg: 'Not Found' });
+    }
     return res.status(400).send({ msg: error });
   }
 }
@@ -92,12 +102,13 @@ export async function allEvents(req, res) {
 // Give information about the event
 export async function getEvent(req, res) {
   const { id } = req.params;
+  const { username } = req.user;
   try {
     const event = await eventService.findEventByIdAndPopulate(id, 'name', 'spendings');
     if (!event) {
       return res.status(404).send({ msg: 'Event not found.' });
     }
-    res.send({ event, msg: 'success' });
+    res.send({ event, user: username });
   } catch (error) {
     if (error.name === 'CastError') {
       return res.status(400).send({ msg: 'Not Found' });

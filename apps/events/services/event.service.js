@@ -25,18 +25,31 @@ export async function addActivity(actor, verb, object, event, participants, adve
   await history.save();
 }
 
-export async function createNewEvent(name, startAt, finishAt, user) {
-  // Create a new instance of Event
-  const event = new Event({
-    name,
-    startAt,
-    finishAt,
+async function addEventToParticipants(participants, event) {
+  participants.forEach(async (participant) => {
+    participant = await userService.findUserById(participant);
+    if (participant) await participant.addEvent(event);
   });
+}
+
+function filterEventParticipants(participants, user) {
+  const filteredParticipants = [...new Set(participants
+    .filter(participant => participant !== String(user.id)))];
+  return filteredParticipants;
+}
+
+export async function createNewEvent(name, startAt, finishAt, user, participants) {
+  // Create a new instance of Event
+  const event = new Event({ name, startAt, finishAt });
   // Add the author of the event to the participants
-  await event.addParticipants('author', user);
+  await event.addParticipant('author', user);
   // Add the event to the user
-  await user.addEvent(event);
-  await event.save();
+  participants = filterEventParticipants(participants, user);
+  await event.addParticipants('participant', participants);
+  await Promise.all([
+    addEventToParticipants(participants, event),
+    user.addEvent(event),
+  ]);
   const object = { type: 'Event', object: event, name: event.name };
   await addActivity(user, 'created', object);
   return createEventToken(event);
@@ -63,7 +76,7 @@ export async function addPeople(event, user) {
   const isParticipant = await validateUser(event, user);
   if (!isParticipant) {
     // If not, add him to the event
-    await event.addParticipants('participant', user);
+    await event.addParticipant('participant', user);
     // Add the event to user
     await user.addEvent(event);
     const object = { type: 'Event', object: event, name: event.name };
