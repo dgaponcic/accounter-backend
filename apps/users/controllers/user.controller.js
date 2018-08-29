@@ -137,3 +137,14 @@ export async function deleteFriend(req, res) {
     return res.status(400).send({ error });
   }
 }
+
+export async function allFriends(req, res) {
+  const { page } = req.params || 1;
+  try {
+    const { friends, pages } = await userService.allFriends(req.user, page);
+    if (friends.length) return res.send({ friends, pages });
+    return res.send({ msg: 'No friends to show.' });
+  } catch (error) {
+    return res.status(400).send({ error });
+  }
+}

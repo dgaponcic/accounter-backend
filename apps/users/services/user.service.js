@@ -1,5 +1,6 @@
 import * as mailService from './mailer.service';
 import User from '../models/user.model';
+import { findEventById } from '../../events/services/event.service';
 
 export async function createUser(username, email, rawPassword) {
   // Create new user instance
@@ -106,14 +107,14 @@ export async function resendEmail(user) {
 }
 
 // Check if users are already friends
-export async function checkIsFriend(user, addedUser) {
+export function checkIsFriend(user, addedUser) {
   const friendsIDs = user.friends.map(x => String(x._id));
   const isParticipant = friendsIDs.includes(String(addedUser.id));
   return isParticipant;
 }
 
 export async function addFriend(user, addedUser) {
-  const isFriend = await checkIsFriend(user, addedUser);
+  const isFriend = checkIsFriend(user, addedUser);
   if (isFriend) return false;
   await user.addFriend(addedUser);
   await addedUser.addFriend(user);
@@ -123,4 +124,26 @@ export async function addFriend(user, addedUser) {
 export async function deleteFriend(user, friend) {
   await user.deleteFriend(friend);
   await friend.deleteFriend(user);
+}
+
+export async function populateFriends(friends) {
+  friends = friends.map(async (friend) => {
+    friend = await findUserById(friend);
+    return {
+      id: friend.id,
+      username: friend.username,
+    };
+  });
+  friends = await Promise.all(friends);
+  return friends;
+}
+
+export async function allFriends(user, page) {
+  const limit = 2;
+  let { friends } = user;
+  friends = await populateFriends(friends);
+  const pages = Math.ceil(friends.length / limit);
+  let skip = 0;
+  if (pages > 0) skip = (page - 1) * limit;
+  return { friends: friends.slice(skip, skip + limit), pages };
 }
