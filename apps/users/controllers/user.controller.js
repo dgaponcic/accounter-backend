@@ -109,7 +109,7 @@ export async function addFriend(req, res) {
     if (addedUser.id === req.user.id) {
       return res.status(400).send({ msg: 'Can not add yourself in friends.' });
     }
-    if (isAdded) return res.send({ msg: 'added' });
+    if (isAdded) return res.send({ msg: 'Added.' });
     return res.send({ msg: 'You are already friends' });
   } catch (error) {
     if (error.name === 'CastError') {
@@ -143,6 +143,27 @@ export async function allFriends(req, res) {
   try {
     const { friends, pages } = await userService.allFriends(req.user, page);
     if (friends.length) return res.send({ friends, pages, msg: 'success' });
+    return res.send({ msg: 'No friends to show.' });
+  } catch (error) {
+    return res.status(400).send({ error });
+  }
+}
+
+export async function getAllFriends(req, res) {
+  try {
+    const friends = await userService.getAllFriends(req.user);
+    if (friends.length) return res.send({ friends });
+    return res.send({ msg: 'No friends to show' });
+  } catch (error) {
+    return res.status(400).send({ error });
+  }
+}
+
+export async function searchFriends(req, res) {
+  const { query } = req.query;
+  try {
+    const friends = await userService.searchFriends(query, req.user);
+    if (friends.length) return res.send({ friends });
     return res.send({ msg: 'No friends to show.' });
   } catch (error) {
     return res.status(400).send({ error });

@@ -30,9 +30,21 @@ router.delete(
 );
 
 router.get(
+  '/friends',
+  passport.authenticate('jwt', { session: false }),
+  UserController.getAllFriends,
+);
+
+router.get(
   '/friends/page/:page',
   passport.authenticate('jwt', { session: false }),
   UserController.allFriends,
+);
+
+router.get(
+  '/friends/search',
+  passport.authenticate('jwt', { session: false }),
+  UserController.searchFriends,
 );
 
 router.post(

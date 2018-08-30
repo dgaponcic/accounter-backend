@@ -147,3 +147,24 @@ export async function allFriends(user, page) {
   if (pages > 0) skip = (page - 1) * limit;
   return { friends: friends.slice(skip, skip + limit), pages };
 }
+
+export async function getAllFriends(user) {
+  let { friends } = user;
+  friends = await populateFriends(friends);
+  return friends;
+}
+
+export async function searchFriends(query, user) {
+  const friendsIds = user.friends;
+  const limit = 10;
+  const friends = await User.find(
+    { _id: { $in: friendsIds },
+      username: {
+      $regex: new RegExp(query, 'i'),
+      },
+    }, { username: 1 },
+  )
+  .sort({ username: 1 })
+  .limit(limit);
+  return friends;
+}
