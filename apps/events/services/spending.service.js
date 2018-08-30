@@ -26,7 +26,7 @@ export function checkSpending(event, spending) {
 }
 
 async function getSpending(spendingsId, page) {
-  const limit = 2;
+  const limit = 10;
   const pages = Math.ceil(spendingsId.length / limit);
   const query = { _id: { $in: spendingsId }, type: 'spending' };
   const options = {
@@ -78,7 +78,7 @@ export async function deleteSpending(user, spending, event) {
 // Search a spending by name by query
 export async function searchSpendings(event, query) {
   const spendingsIds = event.spendings;
-  const limit = 10;
+  const limit = 5;
   const spendings = await Spending.find(
     { _id: { $in: spendingsIds },
       name: {

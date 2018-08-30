@@ -139,7 +139,7 @@ export async function populateFriends(friends) {
 }
 
 export async function allFriends(user, page) {
-  const limit = 2;
+  const limit = 10;
   let { friends } = user;
   friends = await populateFriends(friends);
   const pages = Math.ceil(friends.length / limit);
@@ -156,7 +156,7 @@ export async function getAllFriends(user) {
 
 export async function searchFriends(query, user) {
   const friendsIds = user.friends;
-  const limit = 10;
+  const limit = 5;
   const friends = await User.find(
     { _id: { $in: friendsIds },
       username: {

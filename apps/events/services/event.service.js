@@ -167,7 +167,7 @@ export async function findEventById(id) {
 
 // Return all user's events
 export async function allEvents(events, page) {
-  const limit = 2;
+  const limit = 10;
   const pages = Math.ceil(events.length / limit);
 
   const query = { _id: { $in: events } };
@@ -230,7 +230,7 @@ function sortDebtsEvents(eventsWithDebts) {
 
 // Find all events where user has debts
 export async function allEventsWithDebts(events, page, user) {
-  const limit = 2;
+  const limit = 10;
   events = await Event.find({ _id: { $in: events } });
   let eventsWithDebts = await calculateEventsDebts(events, user);
   eventsWithDebts = sortDebtsEvents(eventsWithDebts);
@@ -370,7 +370,7 @@ export function isEventAuthor(user, event) {
 }
 
 export async function searchEvents(query) {
-  const limit = 10;
+  const limit = 5;
   const events = await Event.find({
       name: { $regex: new RegExp(query) },
     }, { name: 1, createdAt: 1 })
@@ -385,7 +385,7 @@ async function historyLength(event) {
 }
 
 export async function getHistory(page, event) {
-  const limit = 5;
+  const limit = 10;
   const pages = Math.ceil(await historyLength(event) / limit);
   const options = {
     sort: '-createdAt',
