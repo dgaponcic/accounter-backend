@@ -2,7 +2,7 @@ import express from 'express';
 import passport from 'passport';
 import * as EventController from '../controllers/event.controller';
 import * as SpendingController from '../controllers/spending.controller';
-import catchAsyncErrors from '../../../settings/error.handler';
+import * as catchErrors from '../../../settings/error.handler';
 
 const route = express.Router();
 
@@ -18,7 +18,7 @@ route.get(
 route.get(
   '/:id',
   passport.authenticate('jwt', { session: false }),
-  catchAsyncErrors(EventController.validateUser),
+  catchErrors.catchAsyncErrors(EventController.validateUser),
   EventController.getEvent,
 );
 
@@ -26,7 +26,7 @@ route.post(
   '/creation',
   passport.authenticate('jwt', { session: false }),
   EventController.validateEventCreation,
-  catchAsyncErrors(EventController.createEvent),
+  catchErrors.catchAsyncErrors(EventController.createEvent),
 );
 
 route.get(
@@ -38,7 +38,7 @@ route.get(
 route.post(
   '/:id/add/spending',
   passport.authenticate('jwt', { session: false }),
-  catchAsyncErrors(EventController.validateUser),
+  catchErrors.catchAsyncErrors(EventController.validateUser),
   SpendingController.validateSpendingInput,
   SpendingController.createSpending,
 );
@@ -46,35 +46,35 @@ route.post(
 route.get(
   '/:id/spendings/search',
   passport.authenticate('jwt', { session: false }),
-  catchAsyncErrors(EventController.validateUser),
+  catchErrors.catchAsyncErrors(EventController.validateUser),
   SpendingController.searchSpendings,
 );
 
 route.get(
   '/:id/spendings/page/:page',
   passport.authenticate('jwt', { session: false }),
-  catchAsyncErrors(EventController.validateUser),
+  catchErrors.catchAsyncErrors(EventController.validateUser),
   SpendingController.getSpendings,
 );
 
 route.get(
   '/:id/spending/:spendingId',
   passport.authenticate('jwt', { session: false }),
-  catchAsyncErrors(EventController.validateUser),
+  catchErrors.catchAsyncErrors(EventController.validateUser),
   SpendingController.getSpending,
 );
 
 route.get(
   '/:id/debts',
   passport.authenticate('jwt', { session: false }),
-  catchAsyncErrors(EventController.validateUser),
+  catchErrors.catchAsyncErrors(EventController.validateUser),
   EventController.getDebts,
 );
 
 route.put(
   '/:id/',
   passport.authenticate('jwt', { session: false }),
-  catchAsyncErrors(EventController.validateUser),
+  catchErrors.catchAsyncErrors(EventController.validateUser),
   EventController.validateEventCreation,
   EventController.updateEvent,
 );
@@ -82,7 +82,7 @@ route.put(
 route.put(
   '/:id/spending/:spendingId',
   passport.authenticate('jwt', { session: false }),
-  catchAsyncErrors(EventController.validateUser),
+  catchErrors.catchAsyncErrors(EventController.validateUser),
   SpendingController.validateSpendingInput,
   SpendingController.updateSpending,
 );
@@ -90,7 +90,7 @@ route.put(
 route.delete(
   '/:id/',
   passport.authenticate('jwt', { session: false }),
-  catchAsyncErrors(EventController.validateUser),
+  catchErrors.catchAsyncErrors(EventController.validateUser),
   EventController.checkEvent,
   EventController.deleteEvent,
 );
@@ -98,14 +98,14 @@ route.delete(
 route.delete(
   '/:id/spending/:spendingId',
   passport.authenticate('jwt', { session: false }),
-  catchAsyncErrors(EventController.validateUser),
+  catchErrors.catchAsyncErrors(EventController.validateUser),
   SpendingController.deleteSpending,
 );
 
 route.get(
   '/:id/history/page/:page',
   passport.authenticate('jwt', { session: false }),
-  catchAsyncErrors(EventController.validateUser),
+  catchErrors.catchAsyncErrors(EventController.validateUser),
   EventController.getHistory,
 );
 

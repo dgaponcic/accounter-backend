@@ -1,6 +1,7 @@
 import * as eventService from '../services/event.service';
 import * as debtsService from '../services/debts.service';
 import * as userService from '../../users/services/user.service';
+import * as catchErrors from '../../../settings/error.handler';
 
 export async function validateUser(req, res, next) {
   const { user } = req;
@@ -46,13 +47,7 @@ export async function createEvent(req, res) {
     );
     return res.status(201).send({ msg: 'success', eventToken });
   } catch (error) {
-    if (error.name === 'CastError') {
-      return res.status(400).send({ msg: 'Not Found' });
-    }
-    if (error.name === 'ValidationError') {
-      return res.status(400).send({ msg: 'Not Found' });
-    }
-    return res.status(400).send({ msg: error });
+    catchErrors.catchErrors(error, req, res);
   }
 }
 
@@ -69,7 +64,7 @@ export async function joinEvent(req, res) {
     }
     return res.status(404).send({ msg: 'No event Found' });
   } catch (error) {
-    return res.status(400).send({ msg: error });
+    catchErrors.catchErrors(error, req, res);
   }
 }
 
@@ -98,7 +93,7 @@ export async function allEvents(req, res) {
     }
     return res.send({ msg: 'No events to show.' });
   } catch (error) {
-    return res.status(400).send({ msg: error });
+    catchErrors.catchErrors(error, req, res);
   }
 }
 
@@ -113,10 +108,7 @@ export async function getEvent(req, res) {
     }
     res.send({ event, user: username });
   } catch (error) {
-    if (error.name === 'CastError') {
-      return res.status(400).send({ msg: 'Not Found' });
-    }
-    return res.status(400).send({ error });
+    catchErrors.catchErrors(error, req, res);
   }
 }
 
@@ -133,7 +125,7 @@ export async function getDebts(req, res) {
     if (debts.length) return res.send({ msg: 'success', debts, percentages });
     return res.send({ msg: 'No debts to show.', percentages });
   } catch (error) {
-    return res.status(400).send({ error });
+    catchErrors.catchErrors(error, req, res);
   }
 }
 
@@ -151,7 +143,7 @@ export async function updateEvent(req, res) {
     }
     return res.send(response);
   } catch (error) {
-    return res.status(400).send({ error });
+    catchErrors.catchErrors(error, req, res);
   }
 }
 
@@ -167,10 +159,7 @@ export async function checkEvent(req, res, next) {
     if (noDebts) return next();
     return res.status(400).send({ msg: 'You can not delete the event.' });
   } catch (error) {
-    if (error.name === 'CastError') {
-      return res.status(400).send({ msg: 'Not Found' });
-    }
-    return res.status(400).send({ error });
+    catchErrors.catchErrors(error, req, res);
   }
 }
 
@@ -182,7 +171,7 @@ export async function deleteEvent(req, res) {
     if (error.name === 'CastError') {
       return res.status(400).send({ msg: 'Not Found' });
     }
-    res.status(400).send({ error });
+    catchErrors.catchErrors(error, req, res);
   }
 }
 
@@ -193,7 +182,7 @@ export async function searchEvents(req, res) {
     if (events.length) return res.send({ events });
     return res.status(400).send({ msg: 'Not found.' });
   } catch (error) {
-    return res.status(400).send({ error });
+    catchErrors.catchErrors(error, req, res);
   }
 }
 
@@ -207,6 +196,6 @@ export async function getHistory(req, res) {
     if (history.length) return res.send({ history, pages });
     return res.send({ msg: 'No activity to show' });
   } catch (error) {
-    res.status(400).send({ error });
+    catchErrors.catchErrors(error, req, res);
   }
 }

@@ -3,6 +3,7 @@ import validator from 'email-validator';
 import passValidator from '../../../config/password';
 import * as userService from '../services/user.service';
 import * as passwordService from '../services/password.service';
+import * as catchErrors from '../../../settings/error.handler';
 
 dotenv.config();
 
@@ -29,9 +30,7 @@ export async function createUser(req, res) {
     await userService.registerUser(username, email, password);
     return res.status(201).send({ msg: 'success' });
   } catch (error) {
-    // Check if the user already exists
-    if (error.name === 'MongoError' && error.code === 11000) return res.status(400).send({ msg: 'Already used.' });
-    return res.status(400).send({ msg: error });
+    catchErrors.catchErrors(error, req, res);
   }
 }
 
@@ -51,7 +50,7 @@ export async function confirmRegistration(req, res) {
     user.save();
     return res.send({ msg: 'success' });
   } catch (error) {
-    return res.status(400).send({ msg: error });
+    catchErrors.catchErrors(error, req, res);
   }
 }
 
@@ -82,7 +81,7 @@ export async function login(req, res) {
     // Return error if the user is not confirmed or active
     return res.status(400).send({ msg: check.msg });
   } catch (error) {
-    return res.status(400).send({ msg: error });
+    catchErrors.catchErrors(error, req, res);
   }
 }
 
@@ -97,7 +96,7 @@ export async function resendConfirmation(req, res) {
     await userService.resendEmail(user);
     return res.send({ msg: 'success' });
   } catch (error) {
-    return res.status(400).send({ msg: error });
+    catchErrors.catchErrors(error, req, res);
   }
 }
 
@@ -112,10 +111,7 @@ export async function addFriend(req, res) {
     if (isAdded) return res.send({ msg: 'Added.' });
     return res.send({ msg: 'You are already friends' });
   } catch (error) {
-    if (error.name === 'CastError') {
-      return res.status(400).send({ msg: 'Not Found' });
-    }
-    return res.status(400).send({ error });
+    catchErrors.catchErrors(error, req, res);
   }
 }
 
@@ -131,10 +127,7 @@ export async function deleteFriend(req, res) {
     await userService.deleteFriend(req.user, friend);
     return res.send({ msg: 'Deleted.' });
   } catch (error) {
-    if (error.name === 'CastError') {
-      return res.status(400).send({ msg: 'Not Found' });
-    }
-    return res.status(400).send({ error });
+    catchErrors.catchErrors(error, req, res);
   }
 }
 
@@ -145,7 +138,7 @@ export async function allFriends(req, res) {
     if (friends.length) return res.send({ friends, pages, msg: 'success' });
     return res.send({ msg: 'No friends to show.' });
   } catch (error) {
-    return res.status(400).send({ error });
+    catchErrors.catchErrors(error, req, res);
   }
 }
 
@@ -155,7 +148,7 @@ export async function getAllFriends(req, res) {
     if (friends.length) return res.send({ friends });
     return res.send({ msg: 'No friends to show' });
   } catch (error) {
-    return res.status(400).send({ error });
+    catchErrors.catchErrors(error, req, res);
   }
 }
 
@@ -166,6 +159,6 @@ export async function searchFriends(req, res) {
     if (friends.length) return res.send({ friends });
     return res.send({ msg: 'No friends to show.' });
   } catch (error) {
-    return res.status(400).send({ error });
+    catchErrors.catchErrors(error, req, res);
   }
 }

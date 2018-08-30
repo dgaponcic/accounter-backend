@@ -1,5 +1,6 @@
 import * as eventService from '../services/event.service';
 import * as spendingService from '../services/spending.service';
+import * as catchErrors from '../../../settings/error.handler';
 
 export async function validateSpendingInput(req, res, next) {
   // Check the input
@@ -25,13 +26,13 @@ export async function createSpending(req, res) {
   const { id } = req.params;
   try {
     // Find event by id
+    const event = await eventService.findEventById(id);
     if (type === 'payment') {
       const checkUser = eventService.checkUser(payers[0], consumers[0], req.user);
       if (!checkUser) {
         return res.status(400).send({ msg: 'You are not a participant to this payment.' });
       }
     }
-    const event = await eventService.findEventById(id);
     if (!event) return res.status(404).send({ msg: 'Not Found.' });
     // Add new spending to event
     const response = await eventService.addNewSpending(
@@ -46,10 +47,7 @@ export async function createSpending(req, res) {
     if (!response.created) return res.status(400).send({ msg: 'Invalid participants' });
     return res.status(201).send({ msg: 'success' });
   } catch (error) {
-    if (error.name === 'CastError') {
-      return res.status(400).send({ msg: 'Not Found' });
-    }
-    return res.status(400).send(error);
+    catchErrors.catchErrors(error, req, res);
   }
 }
 
@@ -64,14 +62,12 @@ export async function getSpending(req, res) {
       spendingId,
     );
     // Check if the spending belongs to event
-    const check = spendingService.checkSpending(event, spending);
+    let check = false;
+    if (spending) check = spendingService.checkSpending(event, spending);
     if (!check) return res.status(404).send({ msg: 'Not Found.' });
     return res.send({ msg: 'success', spending });
   } catch (error) {
-    if (error.name === 'CastError') {
-      return res.status(400).send({ msg: 'Not Found' });
-    }
-    return res.status(400).send({ error });
+    catchErrors.catchErrors(error, req, res);
   }
 }
 
@@ -87,10 +83,7 @@ export async function getSpendings(req, res) {
     if (!spendings.length) return res.send({ msg: 'No spendings to show.' });
     return res.send({ msg: 'success', spendings, pages });
   } catch (error) {
-    if (error.name === 'CastError') {
-      return res.status(400).send({ msg: 'Not Found' });
-    }
-    return res.status(400).send({ error });
+    catchErrors.catchErrors(error, req, res);
   }
 }
 
@@ -102,15 +95,13 @@ export async function updateSpending(req, res) {
     const oldSpending = await spendingService.findSpendingById(
       spendingId,
     );
-    const check = spendingService.checkSpending(event, oldSpending);
+    let check = false;
+    if (spending) check = spendingService.checkSpending(event, spending);
     if (!check) return res.status(404).send({ msg: 'Not Found.' });
     await spendingService.updateSpending(spending, oldSpending, req.user, event);
     return res.send({ updated: true });
   } catch (error) {
-    if (error.name === 'CastError') {
-      return res.status(400).send({ msg: 'Not Found' });
-    }
-    return res.status(400).send({ error });
+    catchErrors.catchErrors(error, req, res);
   }
 }
 
@@ -119,15 +110,13 @@ export async function deleteSpending(req, res) {
   try {
     const event = await eventService.findEventById(id);
     const spending = await spendingService.findSpendingById(spendingId);
-    const check = spendingService.checkSpending(event, spending);
+    let check = false;
+    if (spending) check = spendingService.checkSpending(event, spending);
     if (!check) return res.status(404).send({ msg: 'Not Found.' });
     await spendingService.deleteSpending(req.user, spending, event);
     return res.send({ msg: 'Deleted.' });
   } catch (error) {
-    if (error.name === 'CastError') {
-      return res.status(400).send({ msg: 'Not Found' });
-    }
-    return res.status(400).send({ error });
+    catchErrors.catchErrors(error, req, res);
   }
 }
 
@@ -140,9 +129,6 @@ export async function searchSpendings(req, res) {
     if (spendings.length) return res.send({ spendings });
     return res.status(400).send({ msg: 'Not found.' });
   } catch (error) {
-    if (error.name === 'CastError') {
-      return res.status(400).send({ msg: 'Not Found' });
-    }
-    return res.status(400).send({ error });
+    catchErrors.catchErrors(error, req, res);
   }
 }
