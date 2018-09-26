@@ -1,4 +1,4 @@
-mage: node:latest
+image: node:latest
 
 stages:
   - production
